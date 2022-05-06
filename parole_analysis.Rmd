@@ -18,7 +18,7 @@ parole_data <- read_csv("data/proquest_1.csv")
 ```
 
 ```{r read-data-2}
-parole_text <- 
+parole_text <- read.delim("data/proquest_2.txt", header = TRUE)
 ```
 
 
