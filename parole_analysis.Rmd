@@ -18,8 +18,16 @@ parole_data <- read_csv("data/proquest_1.csv")
 ```
 
 ```{r read-data-2}
-parole_text <- read.delim("data/proquest_2.txt", header = TRUE)
+parole_text_1 <- read.delim("data/proquest_2.txt", header = TRUE)
+parole_text_2 <- read.delim("data/proquest_2.txt", header = TRUE)
+colnames(parole_text_1)[1] <- "id"
+colnames(parole_text_2)[1] <- "full_text"
 ```
+
+```{r clean-data}
+
+```
+
 
 
 ## R Markdown
