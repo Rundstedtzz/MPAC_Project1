@@ -7,6 +7,7 @@ date: '2022-05-04'
 ```{r package}
 library(readr)
 library(tidytext)
+library(stringr)
 library(tidyverse) 
 library(skimr)
 library(robotstxt)
@@ -26,16 +27,20 @@ colnames(parole_text_1)[1] <- "id"
 
 pattern <- paste(parole_data$StoreId, collapse = "|") # all possible patterns
 
-parole_text_1$StoreId <- as.numeric(str_extract(string = paste(parole_text_1$id, collapse = " "), pattern = pattern))
+parole_text_1$StoreId <- as.numeric(str_extract(string = parole_text_1$id, pattern = pattern))
 
-parole_text_1 <- left_join(parole_text_1, 
+parole_text_article <- parole_text_1 %>% fill(StoreId)
+
+parole_text_article_df <- left_join(parole_text_article, 
                            parole_data,
                            by = "StoreId")
 
 ```
 
+
+
 ```{r change-column name}
-colnames(parole_text_1)[1] <- "text"
+colnames(parole_text_article_df)[1] <- "text"
 ```
 
 ```{r clean-data}
@@ -46,7 +51,12 @@ colnames(parole_text_1)[1] <- "text"
 ```
 
 ```{r keep-text}
-str_locate(text, "Full text")
+full_text_loc <- str_locate(parole_text_1$text, "ProQuest document ID:")
+which(full_text_loc[,1] == '1')
+
+subject_loc <- str_locate(parole_text_1$text, "")
+
+which(subject_loc[,1] == '1')
 ```
 
 
