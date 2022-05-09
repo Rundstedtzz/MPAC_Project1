@@ -53,7 +53,7 @@ colnames(parole_text_article_df)[1] <- "text"
 full_text_loc <- str_locate(parole_text_1$text, "ProQuest document ID:")
 which(full_text_loc[,1] == '1')
 
-subject_loc <- str_locate(parole_text_1$text, "")
+subject_loc <- str_locate(parole_text_1$text, "____________________________________________________________")
 
 which(subject_loc[,1] == '1')
 ```
