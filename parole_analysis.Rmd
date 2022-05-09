@@ -19,15 +19,35 @@ parole_data <- read_csv("data/proquest_1.csv")
 
 ```{r read-data-2}
 parole_text_1 <- read.delim("data/proquest_2.txt", header = TRUE)
-parole_text_2 <- read.delim("data/proquest_2.txt", header = TRUE)
 colnames(parole_text_1)[1] <- "id"
-colnames(parole_text_2)[1] <- "full_text"
+```
+
+```{r extract document id}
+
+pattern <- paste(parole_data$StoreId, collapse = "|") # all possible patterns
+
+parole_text_1$StoreId <- as.numeric(str_extract(string = paste(parole_text_1$id, collapse = " "), pattern = pattern))
+
+parole_text_1 <- left_join(parole_text_1, 
+                           parole_data,
+                           by = "StoreId")
+
+```
+
+```{r change-column name}
+colnames(parole_text_1)[1] <- "text"
 ```
 
 ```{r clean-data}
-
+#parole_text_1 %>% 
+#  select(starts_with("ProQuest document ID"))
+#parole_text_2 %>% 
+#  select(starts_with("Full text"))
 ```
 
+```{r keep-text}
+str_locate(text, "Full text")
+```
 
 
 ## R Markdown
