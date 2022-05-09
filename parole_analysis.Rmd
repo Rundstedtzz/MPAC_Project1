@@ -43,19 +43,18 @@ colnames(parole_text_article_df)[1] <- "text"
 ```
 
 ```{r clean-data}
-#parole_text_1 %>% 
-#  select(starts_with("ProQuest document ID"))
-#parole_text_2 %>% 
-#  select(starts_with("Full text"))
+parole_sub <- parole_text_article_df[-str_which(parole_text_article_df$id, pattern = "ProQuest document ID"),]
 ```
 
 ```{r keep-text}
-full_text_loc <- str_locate(parole_text_1$text, "ProQuest document ID:")
+full_text_loc <- str_locate(parole_text_1$text, "Full text:")
 which(full_text_loc[,1] == '1')
 
-subject_loc <- str_locate(parole_text_1$text, "____________________________________________________________")
+subject_loc <- str_detect(parole_text_1$id, "____________________________________________________________")
 
-which(subject_loc[,1] == '1')
+
+start_end <- data.frame(start = rep(10, 519), end = which(subject_loc==TRUE) + 2)
+which(subject_loc==TRUE) + 2
 ```
 
 
