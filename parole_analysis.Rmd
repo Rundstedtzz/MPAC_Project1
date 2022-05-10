@@ -68,13 +68,9 @@ parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Copyright:"),]
 parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Last updated:"),]
 parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Database:"),]
 parole_sub <- parole_sub[-(str_which(parole_sub$text, pattern = "Full text:")-1),]
-```
-
-```{r}
 prepare_sub <- str_which(parole_sub$text, pattern = "Full text:")-1
 parole_sub <- parole_sub[-prepare_sub[-1],]
 ```
-
 
 ```{r keep-text}
 #full_text_loc <- str_locate(parole_text_1$text, "Full text:")
@@ -87,3 +83,6 @@ parole_sub <- parole_sub[-prepare_sub[-1],]
 #which(subject_loc==TRUE) + 2
 ```
 
+```{r}
+
+```
