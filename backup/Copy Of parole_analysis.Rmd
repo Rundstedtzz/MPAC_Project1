@@ -35,9 +35,12 @@ parole_text_article_df <- left_join(parole_text_article,
                            parole_data,
                            by = "StoreId")
 
-colnames(parole_text_article_df)[1] <- "text"
 ```
 
+
+```{r change-column name}
+colnames(parole_text_article_df)[1] <- "text"
+```
 
 ```{r clean-data}
 parole_sub <- parole_text_article_df[-str_which(parole_text_article_df$text, pattern = "ProQuest document ID:"),]
