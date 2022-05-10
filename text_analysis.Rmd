@@ -1,0 +1,33 @@
+---
+title: "text_analysis"
+output: html_document
+date: '2022-05-10'
+---
+
+```{r}
+library(SnowballC)
+library(janeaustenr)
+library(dplyr)
+library(tidytext)
+library(wordcloud)
+library(tm)
+```
+
+
+```{r}
+word_lists <- parole_sub %>%
+  select(text) %>%
+#  group_by(parole_sub$StoreId) %>%
+  unnest_tokens(output = word, input = text) %>%
+  anti_join(stop_words) %>% 
+  tolower() 
+```
+
+
+```{r}
+wordcloud(word_lists, scale = c(2, 1), min.freq = 75, colors = rainbow(30))
+```
+
+
+
+
