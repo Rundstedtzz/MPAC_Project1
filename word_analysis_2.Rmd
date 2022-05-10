@@ -1,0 +1,66 @@
+---
+title: "word_analysis_2"
+author: "Suzy"
+date: '2022-05-10'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+install.packages("SnowballC")
+install.packages("dplyr")
+library(SnowballC)
+library(dplyr)
+
+parole_sub %>%
+  select(text) %>%
+  unnest_tokens(output = word, input = text) %>%
+  anti_join(stop_words) %>% 
+  tolower() %>% #lowercase words
+  parts_of_speech %>% #add parts of speech to each word
+    count(pos, sort = TRUE)
+  
+  
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+#install.packages("udpipe")
+#install.packages("dplyr")
+library(udpipe)
+library(dplyr)
+library(stringr)
+library(purrr)
+library(tidyr)
+
+Words<-parole_sub %>%
+  select(text)
+df<-data.frame(Words, stringAsFactors = FALSE)
+
+udmodel<-udpipe_download_model(language = "english")
+udmodel<-udpipe_load_model(file = udmodel$file_model)
+
+
+df %>% mutate(
+  tokens = str_extract_all(text, "\\w+|[[:punct:]]"),
+  locations = str_locate_all(text, "\\w+|[[:punct:]]"),
+  locations = map(locations, as.data.frame)) %>%
+  select(-text) %>%
+  unnest(tokens, locations) %>% 
+  mutate(POS = purrr::map_chr(tokens, function(x) as.data.frame(udpipe_annotate(udmodel, x = x, tokenizer = "vertical"))$upos))
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
