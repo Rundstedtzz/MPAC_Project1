@@ -43,39 +43,47 @@ colnames(parole_text_article_df)[1] <- "text"
 ```
 
 ```{r clean-data}
-parole_sub <- parole_text_article_df[-str_which(parole_text_article_df$id, pattern = "ProQuest document ID"),]
+parole_sub <- parole_text_article_df[-str_which(parole_text_article_df$text, pattern = "ProQuest document ID:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Publication info:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "https:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Author:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Abstract:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Subject:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Location:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Company / organization:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Title:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Publication title:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Publication year:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Publication date:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Publication subject:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "First page:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Publisher:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Place of publication:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Country of publication:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Language of publication:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "ISSN:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Source type:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Document type:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Copyright:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Last updated:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Database:"),]
+parole_sub <- parole_sub[-(str_which(parole_sub$text, pattern = "Full text:")-1),]
 ```
+
+```{r}
+prepare_sub <- str_which(parole_sub$text, pattern = "Full text:")-1
+parole_sub <- parole_sub[-prepare_sub[-1],]
+```
+
 
 ```{r keep-text}
-full_text_loc <- str_locate(parole_text_1$text, "Full text:")
-which(full_text_loc[,1] == '1')
+#full_text_loc <- str_locate(parole_text_1$text, "Full text:")
+#which(full_text_loc[,1] == '1')
 
-subject_loc <- str_detect(parole_text_1$id, "____________________________________________________________")
+#subject_loc <- str_detect(parole_text_1$id, #"____________________________________________________________")
 
 
-start_end <- data.frame(start = rep(10, 519), end = which(subject_loc==TRUE) + 2)
-which(subject_loc==TRUE) + 2
+#start_end <- data.frame(start = rep(10, 519), end = which(subject_loc==TRUE) + 2)
+#which(subject_loc==TRUE) + 2
 ```
 
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-#yeah
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-#test
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
