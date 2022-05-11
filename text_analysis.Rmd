@@ -28,6 +28,17 @@ word_lists <- parole_sub %>%
 wordcloud(word_lists, scale = c(2, 1), min.freq = 75, colors = rainbow(30))
 ```
 
+```{r}
+parole_sub %>%
+  select(text) %>%
+#  group_by(parole_sub$StoreId) %>%
+  unnest_tokens(output = word, input = text) %>%
+  anti_join(stop_words) %>% 
+  tolower() %>%
+  group_by(word) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count))
+```
 
 
 
