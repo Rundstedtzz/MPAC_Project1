@@ -55,10 +55,10 @@ udmodel<-udpipe_load_model(file = udmodel$file_model)
 
 
 df %>% mutate(
-  tokens = str_extract_all(text, "\\w+|[[:punct:]]"),
-  locations = str_locate_all(text, "\\w+|[[:punct:]]"),
+  tokens = str_extract_all(Words, "\\w+|[[:punct:]]"),
+  locations = str_locate_all(Words, "\\w+|[[:punct:]]"),
   locations = map(locations, as.data.frame)) %>%
-  select(-text) %>%
+  select(-Words) %>%
   unnest(tokens, locations) %>% 
   mutate(POS = purrr::map_chr(tokens, function(x) as.data.frame(udpipe_annotate(udmodel, x = x, tokenizer = "vertical"))$upos))
 ```
