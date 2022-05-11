@@ -5,9 +5,6 @@ date: '2022-05-10'
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 ## R Markdown
 
@@ -25,7 +22,10 @@ parole_sub %>%
   select(text) %>%
   unnest_tokens(output = word, input = text) %>%
   anti_join(stop_words) %>% 
-  tolower() %>% #lowercase words
+  parole_words = tolower(parole_sub$text) 
+
+
+%>% #lowercase words
   parts_of_speech %>% #add parts of speech to each word
     count(pos, sort = TRUE)
   
