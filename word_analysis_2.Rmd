@@ -8,7 +8,7 @@ output: html_document
 
 ## R Markdown
 
-```{r cars}
+```{ndividual Words and their parts of speech}
 #install.packages("SnowballC")
 #install.packages("dplyr")
 library(SnowballC)
@@ -31,34 +31,19 @@ parole_sub2 <- parole_sub2 %>%
 
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-#install.packages("udpipe")
-#install.packages("dplyr")
-library(udpipe)
-library(dplyr)
-library(stringr)
-library(purrr)
-library(tidyr)
-
-Words<-parole_sub %>%
-  select(text)
-df<-data.frame(Words, stringAsFactors = FALSE)
-
-udmodel<-udpipe_download_model(language = "english")
-udmodel<-udpipe_load_model(file = udmodel$file_model)
-
-
-df %>% mutate(
-  tokens = str_extract_all(Words, "\\w+|[[:punct:]]"),
-  locations = str_locate_all(Words, "\\w+|[[:punct:]]"),
-  locations = map(locations, as.data.frame)) %>%
-  select(-Words) %>%
-  unnest(tokens, locations) %>% 
-  mutate(POS = purrr::map_chr(tokens, function(x) as.data.frame(udpipe_annotate(udmodel, x = x, tokenizer = "vertical"))$upos))
+```{Grouping by Adj and Adverb}
+parole_sub3 <- parole_sub2 %>%
+  group_by(word, pos) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{Attaching Sentiments to Words}
+parole_sentiments <- get_sentiments()
+parole_sub4 <- parole_sub3 %>%
+  left_join(parole_sentiments, by = "word") #%>%
+ #anti_join(parole_sentiments) 
+```
+
+
