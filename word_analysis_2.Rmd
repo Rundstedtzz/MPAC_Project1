@@ -8,28 +8,26 @@ output: html_document
 
 ## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
 ```{r cars}
-install.packages("SnowballC")
-install.packages("dplyr")
+#install.packages("SnowballC")
+#install.packages("dplyr")
 library(SnowballC)
 library(dplyr)
 
-parole_sub %>%
+parole_sub2 <- parole_sub %>%
   select(text) %>%
   unnest_tokens(output = word, input = text) %>%
-  anti_join(stop_words) %>% 
-  parole_words = tolower(parole_sub$text) 
+  anti_join(stop_words) %>%
+  mutate(word = tolower(word)) 
 
 
-%>% #lowercase words
-  parts_of_speech %>% #add parts of speech to each word
-    count(pos, sort = TRUE)
+parts_of_speech_ad <- parts_of_speech %>%
+  filter(pos %in% c("Adjective", "Adverb"))
+
+parole_sub2 <- parole_sub2 %>%
+  left_join(parts_of_speech_ad, by = "word")
   
-  
+#endgram an bygram
 
 ```
 
