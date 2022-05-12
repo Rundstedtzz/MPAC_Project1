@@ -66,6 +66,7 @@ parole_sub5 <- parole_adj_adv %>%
   na.omit()
 ```
 
+
 ```{r top 10 positive versus negative sentiments}
 top10_per_sentiment <- parole_adj_adv %>%
   group_by(sentiment) %>%
@@ -74,6 +75,7 @@ top10_per_sentiment <- parole_adj_adv %>%
 
 ```
 
+
 ```{r}
 top10_per_sentiment <- parole_adj_adv %>%
   filter(pos == "Adjective" | pos == "Adverb")%>%
@@ -81,10 +83,7 @@ top10_per_sentiment <- parole_adj_adv %>%
   filter(!duplicated(word)) %>%
   group_by(sentiment) %>%
   slice_max(count, n = 10)
-  
 ```
-
-
 
 
 ```{r circle packing}
