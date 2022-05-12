@@ -8,7 +8,7 @@ output: html_document
 
 ## R Markdown
 
-```{ndividual Words and their parts of speech}
+```{r ndividual Words and their parts of speech}
 #install.packages("SnowballC")
 #install.packages("dplyr")
 library(SnowballC)
@@ -31,7 +31,7 @@ parole_sub2 <- parole_sub2 %>%
 
 ```
 
-```{Grouping by Adj and Adverb}
+```{r count-1}
 parole_sub3 <- parole_sub2 %>%
   group_by(pos) %>%
   summarise(count = n())%>%
@@ -39,21 +39,28 @@ parole_sub3 <- parole_sub2 %>%
   na.omit()
 ```
 
-```{Grouping by Adj and Adverb}
+```{r Grouping by Adj and Adverb}
 parole_sub4 <- parole_sub2 %>%
-  group_by(word) %>%
+  group_by(word, pos) %>%
   summarise(count = n())%>%
   arrange(desc(count)) %>%
   na.omit()
 ```
 
-```{Attaching Sentiments to Words}
+```{r Attaching Sentiments to Words}
 parole_sentiments <- get_sentiments()
-parole_sub4 <- parole_sub3 %>%
+parole_adj_adv <- parole_sub4 %>%
   left_join(parole_sentiments, by = "word")
 # anti_join(parole_sentiments) 
 
-parole_sub4[is.na(parole_sub4)] <- "neutral"
+parole_adj_adv[is.na(parole_adj_adv)] <- "neutral"
 ```
 
+```{r count-2}
+parole_sub5 <- parole_adj_adv %>%
+  group_by(sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+```
 
