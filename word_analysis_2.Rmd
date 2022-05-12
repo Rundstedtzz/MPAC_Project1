@@ -75,9 +75,10 @@ top10_per_sentiment <- parole_adj_adv %>%
 
 ```{r}
 top10_per_sentiment <- parole_adj_adv %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
   group_by(sentiment) %>%
   slice_max(count, n = 10) %>%
-  distinct(word) 
+  distinct(word, .keep_all = TRUE)
 ```
 
 
