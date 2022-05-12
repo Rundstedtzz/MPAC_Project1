@@ -6,12 +6,45 @@ output: html_document
 ---
 
 ```{r}
-x <- parole_adj_adv %>%
-  filter(count > 100) %>%
-  filter(pos = c("Adjective", "Adverb") %>%
+parole_adj_adv %>%
+  filter(count > 30) %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(sentiment == "negative") %>%
   mutate(word = reorder(word, count)) %>%
   ggplot(aes(count, word)) +
   geom_col() +
   labs(y = NULL)
 ```
+```{r}
+top10_per_sentiment
+```
+
+
+
+
+
+```{r ndividual Words and their parts of speech}
+#install.packages("SnowballC")
+#install.packages("dplyr")
+library(SnowballC)
+library(dplyr)
+library(janitor)
+
+parole_sub2 <- parole_sub %>%
+  select(text) %>%
+  unnest_tokens(output = word, input = text) %>%
+  anti_join(stop_words) %>%
+  mutate(word = tolower(word)) 
+
+
+parts_of_speech_ad <- parts_of_speech %>%
+  filter(pos %in% c("Adjective", "Adverb", "Noun", "Verb"))
+
+parole_sub2 <- parole_sub2 %>%
+  left_join(parts_of_speech_ad, by = "word")
+  
+
+
+
+
 

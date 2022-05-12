@@ -64,6 +64,7 @@ parole_sub5 <- parole_adj_adv %>%
   na.omit()
 ```
 
+
 ```{r top 10 positive versus negative sentiments}
 top10_per_sentiment <- parole_adj_adv %>%
   group_by(sentiment) %>%
@@ -73,7 +74,11 @@ top10_per_sentiment <- parole_adj_adv %>%
 ```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+
+>>>>>>> 56be5178ce26a2c208303cd587257ea55b5db04e
 ```{r}
 top10_per_sentiment <- parole_adj_adv %>%
   filter(pos == "Adjective" | pos == "Adverb")%>%
@@ -81,13 +86,15 @@ top10_per_sentiment <- parole_adj_adv %>%
   filter(!duplicated(word)) %>%
   group_by(sentiment) %>%
   slice_max(count, n = 10)
-  
 ```
 
 
+<<<<<<< HEAD
 
 
 >>>>>>> 2cc670621b9534000bb670c3245f5360d6d5f91c
+=======
+>>>>>>> 56be5178ce26a2c208303cd587257ea55b5db04e
 ```{r circle packing}
 # Circlepacker package
 library(circlepackeR)         
@@ -124,9 +131,9 @@ population <- as.Node(top10_per_sentiment)
 #circlepackeR(population, size = "value")
 
 # You can custom the minimum and maximum value of the color range.
-p <- circlepackeR(population, size = "count", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)")
+p <- circlepackeR(population, size = "value", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)")
 
-
+p
 
 # save the widget
 library(htmlwidgets)
