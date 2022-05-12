@@ -22,7 +22,7 @@ parole_sub2 <- parole_sub %>%
 
 
 parts_of_speech_ad <- parts_of_speech %>%
-  filter(pos %in% c("Adjective", "Adverb"))
+  filter(pos %in% c("Adjective", "Adverb", "Noun", "Verb"))
 
 parole_sub2 <- parole_sub2 %>%
   left_join(parts_of_speech_ad, by = "word")

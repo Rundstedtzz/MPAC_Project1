@@ -1,0 +1,66 @@
+---
+title: "word_analysis_2"
+author: "Suzy"
+date: '2022-05-10'
+output: html_document
+---
+
+
+## R Markdown
+
+```{r ndividual Words and their parts of speech}
+#install.packages("SnowballC")
+#install.packages("dplyr")
+library(SnowballC)
+library(dplyr)
+
+parole_sub2 <- parole_sub %>%
+  select(text) %>%
+  unnest_tokens(output = word, input = text) %>%
+  anti_join(stop_words) %>%
+  mutate(word = tolower(word)) 
+
+
+parts_of_speech_ad <- parts_of_speech %>%
+  filter(pos %in% c("Adjective", "Adverb", "Noun", "Verb"))
+
+parole_sub2 <- parole_sub2 %>%
+  left_join(parts_of_speech_ad, by = "word")
+  
+#n-gram and bigram (2 words)
+
+```
+
+```{r count-1}
+parole_sub3 <- parole_sub2 %>%
+  group_by(pos) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+```
+
+```{r Grouping by Adj and Adverb}
+parole_sub4 <- parole_sub2 %>%
+  group_by(word, pos) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+```
+
+```{r Attaching Sentiments to Words}
+parole_sentiments <- get_sentiments()
+parole_word <- parole_sub4 %>%
+  left_join(parole_sentiments, by = "word")
+# anti_join(parole_sentiments) 
+
+parole_word[is.na(parole_word)] <- "neutral"
+```
+
+```{r count-2}
+parole_sub5 <- parole_word %>%
+  group_by(sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+```
+
