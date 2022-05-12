@@ -13,6 +13,7 @@ output: html_document
 #install.packages("dplyr")
 library(SnowballC)
 library(dplyr)
+library(janitor)
 
 parole_sub2 <- parole_sub %>%
   select(text) %>%
@@ -75,12 +76,18 @@ top10_per_sentiment <- parole_adj_adv %>%
 
 ```{r}
 top10_per_sentiment <- parole_adj_adv %>%
-  distinct(word, .keep_all = TRUE)%>%
-  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(!duplicated(word)) %>%
   group_by(sentiment) %>%
-  slice_max(count, n = 10) 
+  slice_max(count, n = 10)
+  
 ```
 
+```{r}
+top10_per_sentiment <- parole_adj_adv %>%
+  filter(!duplicated(word)) %>%
+  group_by(sentiment) %>%
+  slice_max(count, n = 10)
+```
 
 
 
@@ -112,6 +119,7 @@ population <- as.Node(data)
 
 # You can custom the minimum and maximum value of the color range.
 p <- circlepackeR(population, size = "value", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)")
+
 
 top10_per_sentiment$pathString <- paste("world", top10_per_sentiment$sentiment, top10_per_sentiment$pos, top10_per_sentiment$word, sep = "/")
 population <- as.Node(top10_per_sentiment)
