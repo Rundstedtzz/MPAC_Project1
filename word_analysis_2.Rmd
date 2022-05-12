@@ -7,7 +7,8 @@ output: html_document
 
 ## R Markdown
 
-```{r Individual Words and their parts of speech}
+
+```{r ndividual Words and their parts of speech}
 #install.packages("SnowballC")
 #install.packages("dplyr")
 library(SnowballC)
@@ -30,7 +31,8 @@ parole_sub2 <- parole_sub2 %>%
 
 ```
 
-```{r Grouping by Adj and Adverb}
+
+```{r count-1}
 parole_sub3 <- parole_sub2 %>%
   group_by(pos) %>%
   summarise(count = n())%>%
@@ -38,21 +40,82 @@ parole_sub3 <- parole_sub2 %>%
   na.omit()
 ```
 
-```{Grouping by Adj and Adverb}
+```{r Grouping by Adj and Adverb}
 parole_sub4 <- parole_sub2 %>%
-  group_by(word) %>%
+  group_by(word, pos) %>%
   summarise(count = n())%>%
   arrange(desc(count)) %>%
   na.omit()
 ```
 
-```{Attaching Sentiments to Words}
+```{r Attaching Sentiments to Words}
 parole_sentiments <- get_sentiments()
-parole_sub4 <- parole_sub3 %>%
+parole_adj_adv <- parole_sub4 %>%
   left_join(parole_sentiments, by = "word")
 # anti_join(parole_sentiments) 
 
-parole_sub4[is.na(parole_sub4)] <- "neutral"
+parole_adj_adv[is.na(parole_adj_adv)] <- "neutral"
 ```
 
+```{r count-2}
+parole_sub5 <- parole_adj_adv %>%
+  group_by(sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+```
+
+```{r top 10 positive versus negative sentiments}
+top10_per_sentiment <- parole_adj_adv %>%
+  group_by(sentiment) %>%
+  slice_max(count, n = 10)
+#make sure adverbs and adj aren't overlapping
+
+```
+
+
+```{r circle packing}
+# Circlepacker package
+library(circlepackeR)         
+# devtools::install_github("jeromefroe/circlepackeR") # If needed
+
+# create a nested data frame giving the info of a nested dataset:
+data <- data.frame(
+  root=rep("root", 15),
+  group=c(rep("group A",5), rep("group B",5), rep("group C",5)), 
+  subgroup= rep(letters[1:5], each=3),
+  subsubgroup=rep(letters[1:3], 5),
+  value=sample(seq(1:15), 15)
+)
+
+# Change the format. This use the data.tree library. This library needs a column that looks like root/group/subgroup/..., so I build it
+library(data.tree)
+# Circlepacker package
+library(circlepackeR)         
+#devtools::install_github("jeromefroe/circlepackeR")
+data$pathString <- paste("world", data$group, data$subgroup, data$subsubgroup, sep = "/")
+population <- as.Node(data)
+
+# Make the plot
+#circlepackeR(population, size = "value")
+
+# You can custom the minimum and maximum value of the color range.
+p <- circlepackeR(population, size = "value", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)")
+
+
+top10_per_sentiment$pathString <- paste("world", top10_per_sentiment$sentiment, top10_per_sentiment$pos, top10_per_sentiment$word, sep = "/")
+population <- as.Node(top10_per_sentiment)
+
+# Make the plot
+#circlepackeR(population, size = "value")
+
+# You can custom the minimum and maximum value of the color range.
+p <- circlepackeR(population, size = "count", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)")
+
+
+
+# save the widget
+library(htmlwidgets)
+saveWidget(p, file="circular_packing_circlepackeR2.html")
+```
 
