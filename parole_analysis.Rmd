@@ -11,7 +11,7 @@ library(stringr)
 library(tidyverse) 
 library(skimr)
 library(robotstxt)
-library(rvest) 
+library(rvest)
 ```
 
 ```{r read-data-1}

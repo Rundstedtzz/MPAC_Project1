@@ -5,10 +5,9 @@ date: '2022-05-10'
 output: html_document
 ---
 
-
 ## R Markdown
 
-```{ndividual Words and their parts of speech}
+```{r Individual Words and their parts of speech}
 #install.packages("SnowballC")
 #install.packages("dplyr")
 library(SnowballC)
@@ -31,7 +30,7 @@ parole_sub2 <- parole_sub2 %>%
 
 ```
 
-```{Grouping by Adj and Adverb}
+```{r Grouping by Adj and Adverb}
 parole_sub3 <- parole_sub2 %>%
   group_by(pos) %>%
   summarise(count = n())%>%
