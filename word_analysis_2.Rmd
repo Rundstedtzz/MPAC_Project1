@@ -7,7 +7,6 @@ output: html_document
 
 ## R Markdown
 
-
 ```{r ndividual Words and their parts of speech}
 #install.packages("SnowballC")
 #install.packages("dplyr")
@@ -30,7 +29,6 @@ parole_sub2 <- parole_sub2 %>%
 #n-gram and bigram (2 words)
 
 ```
-
 
 ```{r count-1}
 parole_sub3 <- parole_sub2 %>%
@@ -72,7 +70,6 @@ top10_per_sentiment <- parole_adj_adv %>%
 #make sure adverbs and adj aren't overlapping
 
 ```
-
 
 ```{r circle packing}
 # Circlepacker package
@@ -118,4 +115,3 @@ p <- circlepackeR(population, size = "count", color_min = "hsl(56,80%,80%)", col
 library(htmlwidgets)
 saveWidget(p, file="circular_packing_circlepackeR2.html")
 ```
-
