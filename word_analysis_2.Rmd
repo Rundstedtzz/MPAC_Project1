@@ -27,13 +27,21 @@ parts_of_speech_ad <- parts_of_speech %>%
 parole_sub2 <- parole_sub2 %>%
   left_join(parts_of_speech_ad, by = "word")
   
-#endgram an bygram
+#n-gram and bigram (2 words)
 
 ```
 
 ```{Grouping by Adj and Adverb}
 parole_sub3 <- parole_sub2 %>%
-  group_by(word, pos) %>%
+  group_by(pos) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+```
+
+```{Grouping by Adj and Adverb}
+parole_sub4 <- parole_sub2 %>%
+  group_by(word) %>%
   summarise(count = n())%>%
   arrange(desc(count)) %>%
   na.omit()

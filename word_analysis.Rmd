@@ -13,11 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{Finding the Frequency of Adjectives}
-install.packages("SnowballC")
-<<<<<<< HEAD
-=======
-install.packages("dplyr")
->>>>>>> 9fb2ec34402f35dc4608664e580bdeaeebcd31dd
 library(SnowballC)
 library(dplyr)
   
