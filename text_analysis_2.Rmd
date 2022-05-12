@@ -1,0 +1,11 @@
+---
+title: "text_analysis_2"
+author: "Ricky Sun"
+date: "5/12/2022"
+output: html_document
+---
+
+```{r}
+
+```
+
