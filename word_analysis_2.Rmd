@@ -123,9 +123,9 @@ population <- as.Node(top10_per_sentiment)
 #circlepackeR(population, size = "value")
 
 # You can custom the minimum and maximum value of the color range.
-p <- circlepackeR(population, size = "count", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)")
+p <- circlepackeR(population, size = "value", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)")
 
-
+p
 
 # save the widget
 library(htmlwidgets)
