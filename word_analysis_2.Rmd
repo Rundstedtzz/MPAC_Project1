@@ -90,11 +90,97 @@ top10_per_sentiment <- parole_adj_adv %>%
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 >>>>>>> 2cc670621b9534000bb670c3245f5360d6d5f91c
 =======
 >>>>>>> 56be5178ce26a2c208303cd587257ea55b5db04e
+=======
+```{r}
+# libraries
+library(packcircles)
+library(ggplot2)
+library(viridis)
+library(ggiraph)
+
+# Create data
+data <- data.frame(group=paste("Group_", sample(letters, 70, replace=T), sample(letters, 70, replace=T), sample(letters, 70, replace=T), sep="" ), value=sample(seq(1,70),70)) 
+
+# Add a column with the text you want to display for each bubble:
+data$text <- paste("name: ",data$group, "\n", "value:", data$value, "\n", "You can add a story here!")
+
+# Generate the layout
+packing <- circleProgressiveLayout(data$value, sizetype='area')
+data <- cbind(data, packing)
+dat.gg <- circleLayoutVertices(packing, npoints=50)
+
+# Make the plot with a few differences compared to the static version:
+p <- ggplot() + 
+  geom_polygon_interactive(data = dat.gg, aes(x, y, group = id, fill=id, tooltip = data$text[id], data_id = id), colour = "black", alpha = 0.6) +
+  scale_fill_viridis() +
+  geom_text(data = data, aes(x, y, label = gsub("Group_", "", group)), size=2, color="black") +
+  theme_void() + 
+  theme(legend.position="none", plot.margin=unit(c(0,0,0,0),"cm") ) + 
+  coord_equal()
+
+# Turn it interactive
+widg <- ggiraph(ggobj = p, width_svg = 7, height_svg = 7)
+widg
+
+# save the widget
+library(htmlwidgets)
+saveWidget(widg, file="circular_packing_circlepacking_interactive.html")
+
+
+# Create data
+pck <- circleProgressiveLayout(top10_per_sentiment$count, sizetype='area')
+head(pck)
+
+# Following two datasets will be used in our plot
+mydata <- cbind(top10_per_sentiment, pck)
+
+myPlotCord <- circleLayoutVertices(pck)
+
+#----------------------------------------
+
+p1 <- ggplot()
+p1 <- p1 + geom_polygon(top10_per_sentiment = myPlotCord, aes(x, y, group = id, fill=as.factor(id)))
+p1 <- geom_text(top10_per_sentiment = mydata, aes(x, y, size=count, label = paste(variable, "\n", count)))
+p1
+
+```
+```
+
+
+```{r circular packing diff app}
+## Import libraries
+library(tidyverse)
+library(circlepackeR)  
+library(hrbrthemes)
+library(htmlwidgets)
+library(data.tree)
+
+## Import data
+nestdict <- py$nestdict
+
+## Prepare data format
+nestdict$pathString <- paste("world", 
+                             nestdict$Category, 
+                             nestdict$Level, 
+                             sep = "/")
+
+population <- as.Node(nestdict)
+ 
+## Make the plot
+circlepackeR(population, 
+             size = "Population", 
+             color_min = "hsl(56,80%,80%)", 
+             color_max = "hsl(341,30%,40%)")
+```
+
+
+>>>>>>> 7367ff9885b54a0ccef27ad652e4629efd5749fe
 ```{r circle packing}
 # Circlepacker package
 library(circlepackeR)         
@@ -128,10 +214,10 @@ top10_per_sentiment$pathString <- paste("world", top10_per_sentiment$sentiment, 
 population <- as.Node(top10_per_sentiment)
 
 # Make the plot
-#circlepackeR(population, size = "value")
+circlepackeR(population, size = "count")
 
 # You can custom the minimum and maximum value of the color range.
-p <- circlepackeR(population, size = "value", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)")
+p <- circlepackeR(population, size = "count", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)")
 
 p
 
