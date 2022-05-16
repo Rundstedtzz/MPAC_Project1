@@ -76,12 +76,7 @@ top10_per_sentiment <- parole_adj_adv %>%
 
 ```
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
 
->>>>>>> 56be5178ce26a2c208303cd587257ea55b5db04e
 ```{r}
 top10_per_sentiment <- parole_adj_adv %>%
   filter(pos == "Adjective" | pos == "Adverb")%>%
@@ -92,15 +87,6 @@ top10_per_sentiment <- parole_adj_adv %>%
 ```
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-
->>>>>>> 2cc670621b9534000bb670c3245f5360d6d5f91c
-=======
->>>>>>> 56be5178ce26a2c208303cd587257ea55b5db04e
-=======
 ```{r}
 # libraries
 library(packcircles)
@@ -113,8 +99,7 @@ data <- data.frame(group=paste("Group_", sample(letters, 70, replace=T), sample(
 
 # Add a column with the text you want to display for each bubble:
 data$text <- paste("name: ",data$group, "\n", "value:", data$value, "\n", "You can add a story here!")
-=======
->>>>>>> dff1ebb2393ffecce75600552dff092fae985556
+```
 
 ```{r circle packing try #1}
 library(packcircles)
@@ -149,7 +134,6 @@ p1
 ```
 
 
-<<<<<<< HEAD
 ```{r circular packing diff app}
 ## Import libraries
 library(tidyverse)
@@ -177,11 +161,8 @@ circlepackeR(population,
 ```
 
 
->>>>>>> 7367ff9885b54a0ccef27ad652e4629efd5749fe
-```{r circle packing}
-=======
+
 ```{r circle packing try #2}
->>>>>>> dff1ebb2393ffecce75600552dff092fae985556
 # Circlepacker package
 library(circlepackeR)         
 # devtools::install_github("jeromefroe/circlepackeR") # If needed
@@ -225,8 +206,6 @@ p
 library(htmlwidgets)
 saveWidget(p, file="circular_packing_circlepackeR2.html")
 ```
-<<<<<<< HEAD
-=======
 
 
 ```{r circular packing try #3}
@@ -277,4 +256,3 @@ ggplot() +
 
 ```
 
->>>>>>> dff1ebb2393ffecce75600552dff092fae985556
