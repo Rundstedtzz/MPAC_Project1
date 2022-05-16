@@ -122,23 +122,36 @@ library(htmlwidgets)
 saveWidget(widg, file="circular_packing_circlepacking_interactive.html")
 
 
-# Create data
-pck <- circleProgressiveLayout(top10_per_sentiment$count, sizetype='area')
+
+
+```
+
+
+```{r}
+library(packcircles)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+data2 <- top10_per_sentiment%>%dplyr::arrange(-count)
+head(data2)
+
+
+# Formate data
+pck <- circleProgressiveLayout(data2$count, sizetype="area")
 head(pck)
 
-# Following two datasets will be used in our plot
-mydata <- cbind(top10_per_sentiment, pck)
+# Following two datasets will be used in the plot
+mydata <- cbind(data2, pck)
 
 myPlotCord <- circleLayoutVertices(pck)
 
 #----------------------------------------
 
 p1 <- ggplot()
-p1 <- p1 + geom_polygon(top10_per_sentiment = myPlotCord, aes(x, y, group = id, fill=as.factor(id)))
-p1 <- geom_text(top10_per_sentiment = mydata, aes(x, y, size=count, label = paste(variable, "\n", count)))
+p1 <- p1 + geom_polygon(data2 = myPlotCord, aes(x, y, group = id, fill=as.factor(id)))
+p1 <- geom_text(data2 = mydata, aes(x, y, size=count, label = paste(word, "\n", count)))
 p1
-
-```
 ```
 
 
