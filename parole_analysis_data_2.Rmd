@@ -5,21 +5,6 @@ date: "5/12/2022"
 output: html_document
 ---
 
-```{r}
-parole_adj_adv %>%
-  filter(count > 30) %>%
-  filter(pos == "Adjective" | pos == "Adverb") %>%
-  filter(sentiment == "negative") %>%
-  mutate(word = reorder(word, count)) %>%
-  ggplot(aes(count, word)) +
-  geom_col() +
-  labs(y = NULL)
-```
-
-```{r}
-top10_per_sentiment
-```
-
 ```{r ndividual Words and their parts of speech}
 #install.packages("SnowballC")
 #install.packages("dplyr")
