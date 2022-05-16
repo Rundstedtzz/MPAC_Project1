@@ -29,6 +29,11 @@ wordcloud(word_lists, scale = c(2, 1), min.freq = 75, colors = rainbow(30))
 ```
 
 ```{r}
+wordcloud(parole_adj_adv$word, scale = c(2, 1), min.freq = 75, colors = rainbow(30))
+```
+
+
+```{r}
 parole_sub %>%
   select(text) %>%
 # group_by(parole_sub$StoreId) %>%
