@@ -15,6 +15,7 @@ parole_adj_adv %>%
   geom_col() +
   labs(y = NULL)
 ```
+
 ```{r}
 top10_per_sentiment
 ```
