@@ -14,6 +14,9 @@ output: html_document
 library(SnowballC)
 library(dplyr)
 library(janitor)
+library(tidytext)
+
+
 
 parole_sub2 <- parole_sub %>%
   select(text) %>%
@@ -86,54 +89,17 @@ top10_per_sentiment <- parole_adj_adv %>%
 ```
 
 
-```{r}
-# libraries
-library(packcircles)
-library(ggplot2)
-library(viridis)
-library(ggiraph)
 
-# Create data
-data <- data.frame(group=paste("Group_", sample(letters, 70, replace=T), sample(letters, 70, replace=T), sample(letters, 70, replace=T), sep="" ), value=sample(seq(1,70),70)) 
-
-# Add a column with the text you want to display for each bubble:
-data$text <- paste("name: ",data$group, "\n", "value:", data$value, "\n", "You can add a story here!")
-
-# Generate the layout
-packing <- circleProgressiveLayout(data$value, sizetype='area')
-data <- cbind(data, packing)
-dat.gg <- circleLayoutVertices(packing, npoints=50)
-
-# Make the plot with a few differences compared to the static version:
-p <- ggplot() + 
-  geom_polygon_interactive(data = dat.gg, aes(x, y, group = id, fill=id, tooltip = data$text[id], data_id = id), colour = "black", alpha = 0.6) +
-  scale_fill_viridis() +
-  geom_text(data = data, aes(x, y, label = gsub("Group_", "", group)), size=2, color="black") +
-  theme_void() + 
-  theme(legend.position="none", plot.margin=unit(c(0,0,0,0),"cm") ) + 
-  coord_equal()
-
-# Turn it interactive
-widg <- ggiraph(ggobj = p, width_svg = 7, height_svg = 7)
-widg
-
-# save the widget
-library(htmlwidgets)
-saveWidget(widg, file="circular_packing_circlepacking_interactive.html")
-
-
-
-
-```
-
-
-```{r}
+```{r circle packing try #1}
 library(packcircles)
 library(ggplot2)
 library(dplyr)
 library(tidyr)
 
-data2 <- top10_per_sentiment%>%dplyr::arrange(-count)
+data2 <- top10_per_sentiment %>%
+  select(-pathString) %>%
+  dplyr::arrange(-count)
+
 head(data2)
 
 
@@ -146,43 +112,18 @@ mydata <- cbind(data2, pck)
 
 myPlotCord <- circleLayoutVertices(pck)
 
+myPlotCord$id <- c(rep(1, 10), rep(2, 10), rep(3, 10))
+
 #----------------------------------------
 
 p1 <- ggplot()
-p1 <- p1 + geom_polygon(data2 = myPlotCord, aes(x, y, group = id, fill=as.factor(id)))
-p1 <- geom_text(data2 = mydata, aes(x, y, size=count, label = paste(word, "\n", count)))
+p1 <- p1 + geom_polygon(data = myPlotCord, aes(x, y, group = id, fill=as.factor(id)))
+p1 <- geom_text(data = mydata, aes(x, y, size=count, label = paste(word, "\n", count)))
 p1
 ```
 
 
-```{r circular packing diff app}
-## Import libraries
-library(tidyverse)
-library(circlepackeR)  
-library(hrbrthemes)
-library(htmlwidgets)
-library(data.tree)
-
-## Import data
-nestdict <- py$nestdict
-
-## Prepare data format
-nestdict$pathString <- paste("world", 
-                             nestdict$Category, 
-                             nestdict$Level, 
-                             sep = "/")
-
-population <- as.Node(nestdict)
- 
-## Make the plot
-circlepackeR(population, 
-             size = "Population", 
-             color_min = "hsl(56,80%,80%)", 
-             color_max = "hsl(341,30%,40%)")
-```
-
-
-```{r circle packing}
+```{r circle packing try #2}
 # Circlepacker package
 library(circlepackeR)         
 # devtools::install_github("jeromefroe/circlepackeR") # If needed
@@ -225,5 +166,54 @@ p
 # save the widget
 library(htmlwidgets)
 saveWidget(p, file="circular_packing_circlepackeR2.html")
+```
+
+
+```{r circular packing try #3}
+# Libraries
+library(packcircles)
+library(ggplot2)
+
+
+# Source of code: 
+# https://r-graph-gallery.com/305-basic-circle-packing-with-one-level.html
+ 
+# Create data
+data2 <- top10_per_sentiment %>%
+  select(-pathString) %>%
+  dplyr::arrange(-count)
+
+head(data2)
+
+ 
+# Generate the layout. This function return a dataframe with one line per bubble. 
+# It gives its center (x and y) and its radius, proportional of the value
+pack <- circleProgressiveLayout(data2$count, sizetype='area')
+ 
+# We can add these packing information to the initial data frame
+data3 <- cbind(data2, pack)
+ 
+# Check that radius is proportional to value. We don't want a linear relationship, since it is the AREA that must be proportionnal to the value
+# plot(data3$radius, data3$count)
+ 
+# The next step is to go from one center + a radius to the coordinates of a circle that
+# is drawn by a multitude of straight lines.
+dat.gg <- circleLayoutVertices(pack, npoints=50)
+ 
+# Make the plot
+ggplot() + 
+  
+  # Make the bubbles
+  geom_polygon(data = dat.gg, aes(x, y, group = id, fill=as.factor(id)), colour = "black", alpha = 0.6) +
+  
+  # Add text in the center of each bubble + control its size
+  geom_text(data = data3, aes(x, y, size=count, label = word)) +
+  scale_size_continuous(range = c(1,4)) +
+  
+  # General theme:
+  theme_void() + 
+  theme(legend.position="none") +
+  coord_equal()
+
 ```
 
