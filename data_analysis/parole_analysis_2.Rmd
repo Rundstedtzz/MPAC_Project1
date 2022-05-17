@@ -13,10 +13,13 @@ parole_bigrams
 ```
 
 ```{r}
-parole_bigrams %>%
+parole_bigrams <- parole_bigrams %>%
   separate(bigram, c('word1', 'word2'))
 ```
 
+```{r}
+extract(x, c("Name", "Surname"), "([^,]+), ([^)]+)")
+```
 
 
 
