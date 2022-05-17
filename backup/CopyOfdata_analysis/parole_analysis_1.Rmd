@@ -1,0 +1,116 @@
+---
+title: "parole_analysis_1"
+author: "Ricky Sun"
+date: "5/16/2022"
+output: html_document
+---
+
+```{r}
+x <- parole_adj_adv %>%
+  filter(pos == "Noun") %>%
+  filter(sentiment == "negative") %>%
+  group_by(pubtitle) %>%
+  select(word, count) %>%
+  top_n(n = 3) %>%
+  ggplot(aes(count, word, fill = pubtitle)) +
+  geom_col() +
+  labs(y = NULL)
+
+x
+```
+
+```{r}
+x <- parole_adj_adv %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(sentiment == "negative") %>%
+  group_by(pubtitle) %>%
+  select(word, count) %>%
+  top_n(n = 3) %>%
+  ggplot(aes(count, word, fill = pubtitle)) +
+  geom_col() +
+  labs(y = NULL)
+
+x
+```
+
+
+
+```{r count-1}
+parole_sub6 <- parole_sub2 %>%
+  group_by(pubtitle, pos) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+```
+
+```{r count-1}
+parole_sub7 <- parole_adj_adv %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  group_by(pubtitle, sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+```
+
+```{r}
+parole_sub8 <- parole_adj_adv %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(sentiment == "negative") %>%
+  group_by(year, pubtitle, sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sub8 %>%
+  ggplot(aes(x=year, y=count, fill=pubtitle)) +
+  geom_bar(stat="identity", position=position_dodge())
+```
+
+```{r}
+parole_sub9 <- parole_adj_adv %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(sentiment == "positive") %>%
+  group_by(year, pubtitle, sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sub9 %>%
+  ggplot(aes(x=year, y=count, fill=pubtitle)) +
+  geom_bar(stat="identity", position=position_dodge())
+```
+
+```{r count-1}
+parole_sub10 <- parole_adj_adv %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  group_by(year, pubtitle, sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+```
+
+```{r}
+parole_sub_wide <- parole_sub10 %>%
+  pivot_wider(names_from = sentiment, values_from = count)
+```
+
+```{r}
+parole_sub11 <- parole_sub_wide %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) %>%
+  group_by(year, pubtitle) %>%
+  arrange(desc(percentage_negative)) %>%
+  na.omit()
+
+parole_sub11 %>%
+  ggplot(aes(x=year, y=percentage_negative, fill=pubtitle)) +
+  geom_bar(stat="identity", position=position_dodge())
+```
+
+
+
+
+
+
+
+
+

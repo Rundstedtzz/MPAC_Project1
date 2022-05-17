@@ -5,3 +5,42 @@ date: "5/17/2022"
 output: html_document
 ---
 
+```{r}
+parole_bigrams <- parole_sub %>% 
+  unnest_tokens(bigram, text, token = "ngrams", n = 2)
+
+parole_bigrams 
+```
+
+```{r}
+parole_bigrams %>%
+  separate(bigram, c('word1', 'word2'))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

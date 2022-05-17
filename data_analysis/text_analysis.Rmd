@@ -25,11 +25,11 @@ word_lists <- parole_sub %>%
 
 
 ```{r}
-wordcloud(word_lists, scale = c(2, 1), min.freq = 75, colors = rainbow(30))
+wordcloud(word_lists, scale = c(2, 1), min.freq = 300, colors = rainbow(30))
 ```
 
 ```{r}
-wordcloud(parole_adj_adv$word, scale = c(2, 1), min.freq = 75, colors = rainbow(30))
+wordcloud(parole_sub2$word, scale = c(2, 1), min.freq = 200, colors = rainbow(30))
 ```
 
 

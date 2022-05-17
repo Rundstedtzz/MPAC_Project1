@@ -1,0 +1,36 @@
+---
+title: "parole_analysis_0"
+author: "Ricky Sun"
+date: "5/17/2022"
+output: html_document
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

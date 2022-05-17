@@ -5,3 +5,36 @@ date: "5/17/2022"
 output: html_document
 ---
 
+whether articles that appear violent, juvenile, adult have more negative adjs?
+
+```{r}
+parole_adj_adv %>%
+  filter(word == "adult")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
