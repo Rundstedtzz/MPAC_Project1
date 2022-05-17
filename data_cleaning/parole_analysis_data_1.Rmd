@@ -15,11 +15,11 @@ library(rvest)
 ```
 
 ```{r read-data-1}
-parole_data <- read_csv("data/proquest_1.csv")
+parole_data <- read_csv("../data/proquest_1.csv")
 ```
 
 ```{r read-data-2}
-parole_text_1 <- read.delim("data/proquest_2.txt", header = TRUE)
+parole_text_1 <- read.delim("../data/proquest_2.txt", header = TRUE)
 colnames(parole_text_1)[1] <- "id"
 ```
 
