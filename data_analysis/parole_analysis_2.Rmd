@@ -1,0 +1,60 @@
+---
+title: "parole_analysis_0"
+author: "Ricky Sun"
+date: "5/17/2022"
+output: html_document
+---
+
+```{r}
+parole_bigrams <- parole_sub %>% 
+  unnest_tokens(bigram, text, token = "ngrams", n = 2)
+
+parole_bigrams 
+```
+
+```{r}
+parole_bigrams <- parole_bigrams %>%
+  separate(bigram, c('word1', 'word2'))
+```
+
+```{r}
+parole_test <- parole_adj_adv %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(sentiment == "negative") %>%
+  group_by(year, word) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+```
+
+
+```{r}
+parole_test <- parole_test %>%
+  pivot_wider(names_from = year, values_from = count)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
