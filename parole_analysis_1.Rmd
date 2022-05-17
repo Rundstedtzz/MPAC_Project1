@@ -36,16 +36,58 @@ parole_sub7 <- parole_adj_adv %>%
 ```
 
 ```{r}
+parole_sub8 <- parole_adj_adv %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(sentiment == "negative") %>%
+  group_by(year, pubtitle, sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
 
+parole_sub8 %>%
+  ggplot(aes(x=year, y=count, fill=pubtitle)) +
+  geom_bar(stat="identity", position=position_dodge())
 ```
 
-```{r facet-density-plot-road-speed}
-parole_adj_adv 
+```{r}
+parole_sub9 <- parole_adj_adv %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(sentiment == "positive") %>%
+  group_by(year, pubtitle, sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
 
+parole_sub9 %>%
+  ggplot(aes(x=year, y=count, fill=pubtitle)) +
+  geom_bar(stat="identity", position=position_dodge())
 ```
 
+```{r count-1}
+parole_sub10 <- parole_adj_adv %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  group_by(year, pubtitle, sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+```
 
+```{r}
+parole_sub_wide <- parole_sub10 %>%
+  pivot_wider(names_from = sentiment, values_from = count)
+```
 
+```{r}
+parole_sub11 <- parole_sub_wide %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) %>%
+  group_by(year, pubtitle) %>%
+  arrange(desc(percentage_negative)) %>%
+  na.omit()
+
+parole_sub11 %>%
+  ggplot(aes(x=year, y=percentage_negative, fill=pubtitle)) +
+  geom_bar(stat="identity", position=position_dodge())
+```
 
 
 
