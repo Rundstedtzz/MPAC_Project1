@@ -7,22 +7,30 @@ output: html_document
 
 ```{r}
 x <- parole_adj_adv %>%
-  filter(pos == "Adjective" | pos == "Adverb") %>%
-  filter(sentiment == "positive") %>%
-  mutate(word = reorder(word, count)) %>%
-  slice_max(order_by = count, n = 10) %>%
-  ggplot(aes(count, word)) +
+  filter(pos == "Noun") %>%
+  filter(sentiment == "negative") %>%
+  group_by(pubtitle) %>%
+  select(word, count) %>%
+  top_n(n = 3) %>%
+  ggplot(aes(count, word, fill = pubtitle)) +
   geom_col() +
   labs(y = NULL)
+
+x
 ```
 
 ```{r}
 x <- parole_adj_adv %>%
   filter(pos == "Adjective" | pos == "Adverb") %>%
-  filter(sentiment == "positive") %>%
-  group_by(year, pubtitle) %>%
+  filter(sentiment == "negative") %>%
+  group_by(pubtitle) %>%
   select(word, count) %>%
-  top_n(n = 5) 
+  top_n(n = 3) %>%
+  ggplot(aes(count, word, fill = pubtitle)) +
+  geom_col() +
+  labs(y = NULL)
+
+x
 ```
 
 
