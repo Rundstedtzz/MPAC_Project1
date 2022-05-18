@@ -1,0 +1,111 @@
+---
+title: "parole_analysis_1"
+author: "Ricky Sun"
+date: "5/16/2022"
+output: html_document
+---
+
+
+##Use parole_analysis_data_4
+
+```{r}
+parole_sub2 %>%
+  count(word, sort = TRUE) %>%
+  slice_max(n, n = 15) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word)) +
+  geom_col() +
+  ggtitle("Most common words in Maine news around parole") +
+  labs(subtitle = "from abstract", y = "word", x = "count/frequency")
+```
+
+##Use parole_analysis_data_4
+
+```{r}
+common_negative_words <- parole_abstract %>%
+  filter(pos == "Adjective") %>%
+  filter(sentiment == "negative") %>%
+  group_by(pubtitle) %>%
+  select(word, count) %>%
+  top_n(3) %>%
+  ggplot(aes(count, word, fill = pubtitle)) +
+  geom_col() +
+  ggtitle("Most common negative adjectives in Maine news around parole") +
+  labs(subtitle = "by press", y = "word")
+
+common_negative_words
+```
+
+
+##Use parole_analysis_data_4
+
+```{r}
+parole_sub8 <- parole_abstract %>%
+  filter(sentiment == "negative") %>%
+  group_by(year, pubtitle, sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sub8 %>%
+  ggplot(aes(x=year, y=count, fill=pubtitle)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  ggtitle("frequency of negative words in Maine news around parole") +
+  labs(subtitle = "by press")
+```
+
+##Use parole_analysis_data_4
+
+```{r}
+parole_sub9 <- parole_abstract %>%
+  filter(sentiment == "positive") %>%
+  group_by(year, pubtitle, sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sub9 %>%
+  ggplot(aes(x=year, y=count, fill=pubtitle)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  ggtitle("frequency of positive words in Maine news around parole") +
+  labs(subtitle = "by press")
+```
+
+```{r count-1}
+parole_sub10 <- parole_abstract %>%
+  group_by(year, pubtitle, sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+```
+
+```{r}
+parole_sub_wide <- parole_sub10 %>%
+  pivot_wider(names_from = sentiment, values_from = count)
+```
+
+
+##Use parole_analysis_data_4
+
+```{r}
+parole_sub11 <- parole_sub_wide %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) %>%
+  group_by(year, pubtitle) %>%
+  arrange(desc(percentage_negative)) %>%
+  na.omit()
+
+parole_sub11 %>%
+  ggplot(aes(x=year, y=percentage_negative, fill=pubtitle)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  ggtitle("ratio of negative words occurance in Maine news around parole") +
+  labs(subtitle = "by press")
+```
+
+
+
+
+
+
+
+
+
