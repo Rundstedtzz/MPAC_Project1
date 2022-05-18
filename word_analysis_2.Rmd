@@ -185,11 +185,10 @@ data$pathString <- paste("world", data$group, data$subgroup, data$subsubgroup, s
 population <- as.Node(data)
 
 # Make the plot
-#circlepackeR(population, size = "value")
+circlepackeR(population, size = "value")
 
 # You can custom the minimum and maximum value of the color range.
-p <- circlepackeR(population, size = "value", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)")
-
+q <- circlepackeR(population, size = "value", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)")
 
 top10_per_sentiment$pathString <- paste("world", top10_per_sentiment$sentiment, top10_per_sentiment$pos, top10_per_sentiment$word, sep = "/")
 population <- as.Node(top10_per_sentiment)
@@ -238,12 +237,14 @@ data3 <- cbind(data2, pack)
 # The next step is to go from one center + a radius to the coordinates of a circle that
 # is drawn by a multitude of straight lines.
 dat.gg <- circleLayoutVertices(pack, npoints=50)
+
+dat.gg$sentiment <- paste(data3$sentiment)
  
 # Make the plot
 ggplot() + 
   
   # Make the bubbles
-  geom_polygon(data = dat.gg, aes(x, y, group = id, fill=as.factor(id)), colour = "black", alpha = 0.6) +
+  geom_polygon(data = dat.gg, aes(x, y, group = id), colour = "black", alpha = 0.6) +
   
   # Add text in the center of each bubble + control its size
   geom_text(data = data3, aes(x, y, size=count, label = word)) +
@@ -253,6 +254,39 @@ ggplot() +
   theme_void() + 
   theme(legend.position="none") +
   coord_equal()
+  
+
+```
+
+
+
+```{r data.tree}
+# Circlepacker package
+library(circlepackeR)         
+# devtools::install_github("jeromefroe/circlepackeR") # If needed
+
+# create a treemap
+# install.packages(data.tree)
+library(data.tree)
+
+
+## Prepare data format
+top10_per_sentiment$pathString <- paste("world",
+                                        top10_per_sentiment$sentiment, 
+                                        top10_per_sentiment$pos, 
+                                        top10_per_sentiment$word,
+                                        sep = "/")
+population <- as.Node(top10_per_sentiment)
+print(population, "sentiment", "pos", "word", limit = 20)
+ 
+## Make the plot
+circlepackeR(population, 
+             size = "count", 
+             color_min = "hsl(56,80%,80%)", 
+             color_max = "hsl(341,30%,40%)")
+
+# You can custom the minimum and maximum value of the color range.
+circlepackeR(population, size = "count", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)", width = NULL, height = NULL)
 
 ```
 
