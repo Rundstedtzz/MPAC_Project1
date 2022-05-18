@@ -8,14 +8,57 @@ output: html_document
 whether articles that appear violent, juvenile, adult have more negative adjs?
 
 ```{r}
-parole_adj_adv %>%
+parole_adult <- parole_adj_adv %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
   filter(word == "adult")
+
+parole_juvenile <- parole_adj_adv %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(word == "juvenile")
+
+parole_violent <- parole_adj_adv %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(word == "violent")
+
+parole_try <- parole_adj_adv %>%
+  filter(word == "reform")
+```
+
+```{r}
+parole_adult_final <- parole_adj_adv %>%
+  filter(Title %in% parole_adult$Title)
+
+parole_juvenile_final <- parole_adj_adv %>%
+  filter(Title %in% parole_juvenile$Title)
+
+parole_violent_final <- parole_adj_adv %>%
+  filter(Title %in% parole_violent$Title)
 ```
 
 
+```{r}
+parole_bigrams <- parole_sub %>% 
+  unnest_tokens(bigram, text, token = "ngrams", n = 2)
 
+parole_try <- parole_bigrams %>%
+  filter(bigram == "violent crime")
+```
 
+```{r}
+parole_bigrams <- parole_sub %>% 
+  unnest_tokens(bigram, text, token = "ngrams", n = 2)
 
+parole_try <- parole_bigrams %>%
+  filter(bigram == "prison reform")
+```
+
+```{r xx}
+parole_bigrams <- parole_sub %>% 
+  unnest_tokens(bigram, text, token = "ngrams", n = 2)
+
+parole_try <- parole_bigrams %>%
+  filter(bigram == "prison reform")
+```
 
 
 

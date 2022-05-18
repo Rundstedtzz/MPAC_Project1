@@ -5,82 +5,41 @@ date: "5/16/2022"
 output: html_document
 ---
 
+
+##Use parole_analysis_data_2
+
 ```{r}
-x <- parole_adj_adv %>%
-  filter(pos == "Noun") %>%
+parole_sub2 %>%
+  count(word, sort = TRUE) %>%
+  slice_max(n, n = 15) %>%
+  mutate(word = reorder(word, n)) %>%
+  # put `n` on the x-axis and `word` on the y-axis
+  ggplot(aes(n, word)) +
+  geom_col() +
+  ggtitle("Most common words in Maine news around parole") +
+  labs(subtitle = "from texts", y = "word", x = "count/frequency")
+```
+
+##Use parole_analysis_data_2
+
+```{r}
+common_negative_words <- parole_adj_adv %>%
+  filter(pos == "Adjective") %>%
+  filter(word != "guilty") %>%
   filter(sentiment == "negative") %>%
   group_by(pubtitle) %>%
   select(word, count) %>%
   top_n(n = 3) %>%
   ggplot(aes(count, word, fill = pubtitle)) +
   geom_col() +
-  labs(y = NULL)
+  ggtitle("Most common words in Maine news around parole by press") +
+  labs(y = "word")
 
-x
-```
-```{r}
-parole_adj_adv %>% 
-  filter(word != "st") %>%
-  group_by(year, pubtitle) %>%
-  filter(count > 30) %>% 
-  mutate(word = reorder(word, count)) %>% 
-    ggplot(aes(word, count)) + 
-    geom_col() +
-    coord_flip() +
-    labs(x = "Word \n", y = "\n Count ", title = "Frequent Words \n") +
-    geom_text(aes(label = count), hjust = 1.2, colour = "white", fontface = "bold") +
-    theme(plot.title = element_text(hjust = 0.5), 
-        axis.title.x = element_text(face="bold", colour="darkblue", size = 12),
-        axis.title.y = element_text(face="bold", colour="darkblue", size = 12))
-
+common_negative_words
 ```
 
 
-```{r}
-parole_sub2 %>%
-  # remove stop words
-  count(word, sort = TRUE) %>%
-  slice_max(n, n = 20) %>%
-  mutate(word = reorder(word, n)) %>%
-  # put `n` on the x-axis and `word` on the y-axis
-  ggplot(aes(n, word)) +
-  geom_col()
-```
-
-
-```{r}
-x <- parole_adj_adv %>%
-  filter(pos == "Adjective" | pos == "Adverb") %>%
-  filter(sentiment == "negative") %>%
-  group_by(pubtitle) %>%
-  mutate(word = reorder(word, count)) %>%
-  select(word, count) %>%
-  top_n(n = 2) %>%
-  ggplot(aes(count, word, fill = pubtitle)) +
-  geom_col() +
-  labs(y = NULL)
-
-x
-```
-
-
-
-```{r count-1}
-parole_sub6 <- parole_sub2 %>%
-  group_by(pubtitle, pos) %>%
-  summarise(count = n())%>%
-  arrange(desc(count)) %>%
-  na.omit()
-```
-
-```{r count-1}
-parole_sub7 <- parole_adj_adv %>%
-  filter(pos == "Adjective" | pos == "Adverb") %>%
-  group_by(pubtitle, sentiment) %>%
-  summarise(count = n())%>%
-  arrange(desc(count)) %>%
-  na.omit()
-```
+##Use parole_analysis_data_2
 
 ```{r}
 parole_sub8 <- parole_adj_adv %>%
@@ -93,8 +52,11 @@ parole_sub8 <- parole_adj_adv %>%
 
 parole_sub8 %>%
   ggplot(aes(x=year, y=count, fill=pubtitle)) +
-  geom_bar(stat="identity", position=position_dodge())
+  geom_bar(stat="identity", position=position_dodge()) +
+  ggtitle("frequency of negative adjectives or adverbs in Maine news around parole by press") 
 ```
+
+##Use parole_analysis_data_2
 
 ```{r}
 parole_sub9 <- parole_adj_adv %>%
@@ -107,7 +69,8 @@ parole_sub9 <- parole_adj_adv %>%
 
 parole_sub9 %>%
   ggplot(aes(x=year, y=count, fill=pubtitle)) +
-  geom_bar(stat="identity", position=position_dodge())
+  geom_bar(stat="identity", position=position_dodge()) +
+  ggtitle("frequency of positive adjectives or adverbs in Maine news around parole by press") 
 ```
 
 ```{r count-1}
@@ -124,6 +87,9 @@ parole_sub_wide <- parole_sub10 %>%
   pivot_wider(names_from = sentiment, values_from = count)
 ```
 
+
+##Use parole_analysis_data_2
+
 ```{r}
 parole_sub11 <- parole_sub_wide %>%
   mutate(percentage_negative = negative/(negative + positive + neutral)) %>%
@@ -133,7 +99,9 @@ parole_sub11 <- parole_sub_wide %>%
 
 parole_sub11 %>%
   ggplot(aes(x=year, y=percentage_negative, fill=pubtitle)) +
-  geom_bar(stat="identity", position=position_dodge())
+  geom_bar(stat="identity", position=position_dodge()) +
+  ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+  labs(subtitle = "by press")
 ```
 
 
