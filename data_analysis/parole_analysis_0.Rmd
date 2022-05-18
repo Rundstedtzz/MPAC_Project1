@@ -5,26 +5,107 @@ date: "5/17/2022"
 output: html_document
 ---
 
+
+##Use parole_analysis_data_5
 whether articles that appear violent, juvenile, adult have more negative adjs?
 
 ```{r}
+library(tidyverse)
 parole_adult <- parole_adj_adv %>%
   filter(pos == "Adjective" | pos == "Adverb") %>%
   filter(word == "adult")
 
 parole_juvenile <- parole_adj_adv %>%
   filter(pos == "Adjective" | pos == "Adverb") %>%
-  filter(word == "juvenile")
+  filter(word == "juvenile" | word == "teenager")
 
 parole_violent <- parole_adj_adv %>%
   filter(pos == "Adjective" | pos == "Adverb") %>%
-  filter(word == "violent")
+  filter(word == "violent" | word == "violence")
 
 parole_try <- parole_adj_adv %>%
   filter(word == "reform")
 ```
 
+##Adult
 ```{r}
+parole_adult_final <- parole_adj_adv %>%
+  mutate(dummy = ifelse(Title %in% parole_adult$Title, "adult", "no-adult")) %>%
+  filter(pos == "Adjective" | pos == "Adverb") 
+```
+
+```{r}
+parole_adult_final <- parole_adult_final%>%
+  group_by(sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) 
+```
+
+```{r}
+parole_adult_final %>%
+  ggplot(aes(x=dummy, y=percentage_negative)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'adult'")
+```
+
+##Juvenilt/teenager
+```{r}
+parole_juvenile_final <- parole_adj_adv %>%
+  mutate(dummy = ifelse(Title %in% parole_juvenile$Title, "juvenile/teenager", "no-juvenile/teenager")) %>%
+  filter(pos == "Adjective" | pos == "Adverb") 
+```
+
+```{r}
+parole_juvenile_final <- parole_juvenile_final%>%
+  group_by(sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) 
+```
+
+```{r}
+parole_juvenile_final %>%
+  ggplot(aes(x=dummy, y=percentage_negative, color = dummy)) +
+  geom_bar(stat="identity", position=position_dodge(), fill="white") +
+  ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'adult'") +
+  theme_minimal()
+```
+
+##violent/violence
+```{r}
+parole_violent_final <- parole_adj_adv %>%
+  mutate(dummy = ifelse(Title %in% parole_violent$Title, "violent", "no-violent")) %>%
+  filter(pos == "Adjective" | pos == "Adverb") 
+```
+
+```{r}
+parole_violent_final <- parole_violent_final%>%
+  group_by(sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) 
+```
+
+```{r}
+parole_violent_final %>%
+  ggplot(aes(x=dummy, y=percentage_negative)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'adult'")
+```
+
+
+
+```{r eval = FALSE}
 parole_adult_final <- parole_adj_adv %>%
   filter(Title %in% parole_adult$Title)
 
@@ -35,8 +116,7 @@ parole_violent_final <- parole_adj_adv %>%
   filter(Title %in% parole_violent$Title)
 ```
 
-
-```{r}
+```{r eval = FALSE}
 parole_bigrams <- parole_sub %>% 
   unnest_tokens(bigram, text, token = "ngrams", n = 2)
 
@@ -44,7 +124,8 @@ parole_try <- parole_bigrams %>%
   filter(bigram == "violent crime")
 ```
 
-```{r}
+#bigram
+```{r eval = FALSE}
 parole_bigrams <- parole_sub %>% 
   unnest_tokens(bigram, text, token = "ngrams", n = 2)
 
@@ -52,12 +133,34 @@ parole_try <- parole_bigrams %>%
   filter(bigram == "prison reform")
 ```
 
-```{r xx}
+```{r eval = FALSE}
 parole_bigrams <- parole_sub %>% 
   unnest_tokens(bigram, text, token = "ngrams", n = 2)
 
 parole_try <- parole_bigrams %>%
-  filter(bigram == "prison reform")
+  filter(bigram == "michael boucher")
+```
+
+```{r eval = FALSE}
+`%!in%` <- Negate(`%in%`)
+parole_adult_final1 <- parole_adj_adv %>%
+  filter(Title %!in% parole_adult$Title) %>%
+  filter(pos == "Adjective" | pos == "Adverb") 
+
+parole_adult_final2 <- parole_adult_final %>%
+  filter(pos == "Adjective" | pos == "Adverb") 
+```
+
+```{r eval = FALSE}
+parole_adult_final1 <- parole_adult_final1 %>%
+  group_by(sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_adult_final1 <- parole_adult_final1 %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) %>%
 ```
 
 
