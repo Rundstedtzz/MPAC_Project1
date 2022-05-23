@@ -18,20 +18,10 @@ parole_bigrams <- parole_bigrams %>%
 ```
 
 ```{r}
-parole_test <- parole_adj_adv %>%
-  filter(pos == "Adjective" | pos == "Adverb") %>%
-  filter(sentiment == "negative") %>%
-  group_by(year, word) %>%
-  summarise(count = n())%>%
-  arrange(desc(count)) %>%
-  na.omit()
+
 ```
 
 
-```{r}
-parole_test <- parole_test %>%
-  pivot_wider(names_from = year, values_from = count)
-```
 
 
 
