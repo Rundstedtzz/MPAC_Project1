@@ -4,3 +4,19 @@ author: "Ricky Sun"
 date: "5/18/2022"
 output: html_document
 ---
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+

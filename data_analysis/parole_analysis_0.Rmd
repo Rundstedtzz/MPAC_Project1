@@ -27,6 +27,13 @@ parole_try <- parole_adj_adv %>%
   filter(word == "reform")
 ```
 
+```{r}
+parole_elder <- parole_adj_adv %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(word == "elder")
+```
+
+
 ##Adult
 ```{r}
 parole_adult_final <- parole_adj_adv %>%
@@ -46,10 +53,11 @@ parole_adult_final <- parole_adult_final%>%
 
 ```{r}
 parole_adult_final %>%
-  ggplot(aes(x=dummy, y=percentage_negative)) +
-  geom_bar(stat="identity", position=position_dodge()) +
+  ggplot(aes(x=dummy, y=percentage_negative, color = dummy)) +
+  geom_bar(stat="identity", position=position_dodge(), fill="white") +
   ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
-  labs(x = "whether the news contain 'adult'")
+  labs(x = "whether the news contain 'adult'") +
+  theme_minimal()
 ```
 
 ##Juvenilt/teenager
@@ -74,7 +82,7 @@ parole_juvenile_final %>%
   ggplot(aes(x=dummy, y=percentage_negative, color = dummy)) +
   geom_bar(stat="identity", position=position_dodge(), fill="white") +
   ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
-  labs(x = "whether the news contain 'adult'") +
+  labs(x = "whether the news contain 'juvenile/teenager'") +
   theme_minimal()
 ```
 
@@ -97,10 +105,11 @@ parole_violent_final <- parole_violent_final%>%
 
 ```{r}
 parole_violent_final %>%
-  ggplot(aes(x=dummy, y=percentage_negative)) +
-  geom_bar(stat="identity", position=position_dodge()) +
+  ggplot(aes(x=dummy, y=percentage_negative, color = dummy)) +
+  geom_bar(stat="identity", position=position_dodge(), fill = "white") +
   ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
-  labs(x = "whether the news contain 'adult'")
+  labs(x = "whether the news contain 'violent/violence'") +
+  theme_minimal()
 ```
 
 
@@ -163,12 +172,85 @@ parole_adult_final1 <- parole_adult_final1 %>%
   mutate(percentage_negative = negative/(negative + positive + neutral)) %>%
 ```
 
+#test (juvenile-year)
+```{r}
+parole_juvenile_final <- parole_adj_adv %>%
+  mutate(dummy = ifelse(Title %in% parole_juvenile$Title, "juvenile/teenager", "no-juvenile/teenager")) %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(year == 2001 | year == 2002 | year == 2003 | year == 2005 | year == 2006 | year == 2007 | year == 2008 | year == 2012 | year == 2013 | year == 2016 | year == 2018 | year == 2019 | year == 2020)
+```
 
+```{r}
+parole_juvenile_final <- parole_juvenile_final%>%
+  group_by(year, sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) 
+```
 
+```{r}
+parole_juvenile_final %>%
+  ggplot(aes(x=year, y=percentage_negative, color = dummy)) +
+  geom_bar(stat="identity", position=position_dodge(), fill="white") +
+  ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'juvenile/teenager'") +
+  theme_minimal()
+```
 
+#test (adult-year)
+```{r}
+parole_adult_final <- parole_adj_adv %>%
+  mutate(dummy = ifelse(Title %in% parole_adult$Title, "adult", "no-adult")) %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(year == 2012 | year == 2003 | year == 2013 | year == 2016 | year == 2001 | year == 2019 | year == 2002)
+```
 
+```{r}
+parole_adult_final <- parole_adult_final%>%
+  group_by(year, sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) 
+```
 
+```{r}
+parole_adult_final %>%
+  ggplot(aes(x=year, y=percentage_negative, color = dummy)) +
+  geom_bar(stat="identity", position=position_dodge(), fill="white") +
+  ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'adult'") +
+  theme_minimal()
+```
 
+#test (violent-year)
+```{r}
+parole_violent_final <- parole_adj_adv %>%
+  mutate(dummy = ifelse(Title %in% parole_violent$Title, "violent", "no-violent")) %>%
+  filter(pos == "Adjective" | pos == "Adverb") 
+```
+
+```{r}
+parole_violent_final <- parole_violent_final%>%
+  group_by(year, sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) 
+```
+
+```{r}
+parole_violent_final %>%
+  ggplot(aes(x=year, y=percentage_negative, color = dummy)) +
+  geom_bar(stat="identity", position=position_dodge(), fill="white") +
+  ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'adult'") +
+  theme_minimal()
+```
 
 
 

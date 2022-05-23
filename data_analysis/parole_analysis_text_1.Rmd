@@ -17,7 +17,8 @@ parole_sub2 %>%
   ggplot(aes(n, word)) +
   geom_col() +
   ggtitle("Most common words in Maine news around parole") +
-  labs(subtitle = "from texts", y = "word", x = "count/frequency")
+  labs(subtitle = "from texts", y = "word", x = "count/frequency") +
+  theme_minimal()
 ```
 
 ##Use parole_analysis_data_2
@@ -33,7 +34,8 @@ common_negative_words <- parole_adj_adv %>%
   ggplot(aes(count, word, fill = pubtitle)) +
   geom_col() +
   ggtitle("Most common words in Maine news around parole by press") +
-  labs(y = "word")
+  labs(y = "word") +
+  theme_minimal()
 
 common_negative_words
 ```

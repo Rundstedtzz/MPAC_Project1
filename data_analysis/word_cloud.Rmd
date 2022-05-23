@@ -29,7 +29,9 @@ wordcloud(word_lists, scale = c(2, 1), min.freq = 300, colors = rainbow(30))
 ```
 
 ```{r}
-wordcloud(parole_sub2$word, scale = c(2, 1), min.freq = 200, colors = rainbow(30))
+parole_sub4 <- parole_sub4 %>%
+  filter(pos == "Adjective" | pos == "Adverb") 
+wordcloud(parole_sub4$word, scale = c(2, 1), min.freq = 50, colors = rainbow(10))
 ```
 
 
