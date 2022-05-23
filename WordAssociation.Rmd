@@ -1,0 +1,66 @@
+
+```{r}
+library(dplyr)
+library(janeaustenr)
+library(tidytext)
+
+data <- parole_sub
+
+words <- unnest_tokens(data, word, text)
+words <- words %>% anti_join(stop_words)
+words <- unnest_tokens(data, word, text, token = "ngrams", n = 2)
+
+words
+```
+
+
+```{r}
+library(tidyr)
+words <- words %>%
+ separate(word, c('word1', 'word2'))
+```
+
+```{r}
+clean_words <- words %>%
+  anti_join(stop_words, by= c("word1" = "word")) %>%
+  anti_join(stop_words, by= c("word2" = "word")) 
+```
+
+```{r}
+words <- clean_words %>%
+  unite(phrase, c("word1", "word2"))
+```
+
+```{r}
+count(words, phrase, sort = TRUE)
+```
+
+
+```{r}
+library(widyr)
+
+pairs <- words %>%
+  summarise(n_count = n()) %>%
+  separate(words,phrase, c('word1', 'word2'))
+```
+
+```{r}
+library(igraph)
+library(ggraph)
+
+clean_words %>%
+        filter(n >= 40) %>%
+        graph_from_data_frame() %>%
+        ggraph(layout = "fr") +
+        geom_edge_link(aes(edge_alpha = n, edge_width = n)) +
+        geom_node_point(color = "darkslategray4", size = 5) +
+        geom_node_text(aes(label = name), vjust = 1.8) +
+        ggtitle(expression(paste("Word connections"))) +
+        theme_void()
+```
+
+
+
+
+
+
