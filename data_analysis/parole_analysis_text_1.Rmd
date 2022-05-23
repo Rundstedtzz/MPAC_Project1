@@ -21,6 +21,7 @@ parole_sub2 %>%
   theme_minimal()
 ```
 
+
 ##Use parole_analysis_data_2
 
 ```{r}
