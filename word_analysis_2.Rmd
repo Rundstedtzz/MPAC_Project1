@@ -190,6 +190,8 @@ circlepackeR(population, size = "value")
 # You can custom the minimum and maximum value of the color range.
 q <- circlepackeR(population, size = "value", color_min = "hsl(56,80%,80%)", color_max = "hsl(341,30%,40%)")
 
+q
+
 top10_per_sentiment$pathString <- paste("world", top10_per_sentiment$sentiment, top10_per_sentiment$pos, top10_per_sentiment$word, sep = "/")
 population <- as.Node(top10_per_sentiment)
 

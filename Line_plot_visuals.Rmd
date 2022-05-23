@@ -1,0 +1,105 @@
+---
+title: "Shape Variation"
+author: "Suzy"
+date: '2022-05-23'
+output: html_document
+---
+
+
+```{r test}
+# library
+# install.packages(ggridges) package not found
+remotes::install_github("wilkelab/ggridges")
+library(ggridges)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(forcats)
+
+# Load dataset from github
+data <- read.table("https://raw.githubusercontent.com/zonination/perceptions/master/probly.csv", header=TRUE, sep=",")
+data <- data %>% 
+  gather(key="text", value="value") %>%
+  mutate(text = gsub("\\.", " ",text)) %>%
+  mutate(value = round(as.numeric(value),0)) %>%
+  filter(text %in% c("Almost Certainly","Very Good Chance","We Believe","Likely","About Even", "Little Chance", "Chances Are Slight", "Almost No Chance"))
+
+# Plot
+data %>%
+  mutate(text = fct_reorder(text, value)) %>%
+  ggplot( aes(y=text, x=value,  fill=text)) +
+    geom_density_ridges(alpha=0.6, stat="binline", bins=20) +
+    theme_ridges() +
+    theme(
+      legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8)
+    ) +
+    xlab("") +
+    ylab("Assigned Probability (%)")
+```
+
+## Creating new data set
+
+
+```{r data set}
+parole_adj_adv <- subset(parole_adj_adv, select = -pubtitle)
+parole_adj_adv <- subset(parole_adj_adv, select = -pos)
+
+variation_data <- parole_adj_adv %>%
+  group_by(word) %>%
+  group_by(year) %>%
+  filter(word %in% c("violent", "parole", "probation", "dangerous", "drug")) %>%
+  #summarise(count = n())%>%
+  arrange(year)
+
+```
+
+
+
+```{r Plot}
+
+# Plot
+variation_data %>%
+  mutate(text = fct_reorder(word, count)) %>%
+  ggplot( aes(y=word, x=count,  fill=text)) +
+    geom_density_ridges(alpha=0.6, stat="binline", bins=20) +
+    theme_ridges() +
+    theme(
+      legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8)
+    ) +
+    xlab("") +
+    ylab("Assigned Probability (%)")
+
+```
+
+```{r stacked line plot}
+# Libraries
+library(ggplot2)
+library(dplyr)
+library(viridis)
+library(hrbrthemes)
+devtools::install_github("ropensci/plotly")
+library(plotly)
+
+# Plot
+p <- variation_data %>% 
+  ggplot( aes(x=year, y=count, fill=word, text=word)) +
+    geom_area( ) +
+    scale_fill_viridis(discrete = TRUE) +
+    theme(legend.position="none") +
+    ggtitle("Popularity of Certain Words in the past 20 years") +
+    theme_ipsum() +
+    theme(legend.position="none")
+
+# Turn it interactive
+p <- ggplotly(p, tooltip="text")
+p
+
+# save the widget
+# library(htmlwidgets)
+# saveWidget(p, file=paste0( getwd(), "/HtmlWidget/ggplotlyStackedareachart.html"))
+```
+
