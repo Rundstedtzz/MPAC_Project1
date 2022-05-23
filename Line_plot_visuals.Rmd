@@ -47,10 +47,10 @@ parole_adj_adv <- subset(parole_adj_adv, select = -pubtitle)
 parole_adj_adv <- subset(parole_adj_adv, select = -pos)
 
 variation_data <- parole_adj_adv %>%
-  group_by(word) %>%
-  group_by(year) %>%
+  ungroup() %>%
   filter(word %in% c("violent", "parole", "probation", "dangerous", "drug")) %>%
-  #summarise(count = n())%>%
+  group_by(word, year) %>%
+  summarise(count_total = sum(count)) %>%
   arrange(year)
 
 ```
@@ -61,14 +61,14 @@ variation_data <- parole_adj_adv %>%
 
 # Plot
 variation_data %>%
-  mutate(text = fct_reorder(word, count)) %>%
-  ggplot( aes(y=word, x=count,  fill=text)) +
-    geom_density_ridges(alpha=0.6, stat="binline", bins=20) +
+  mutate(text = fct_reorder(word, count_total)) %>%
+  ggplot( aes(y=word, x=count_total,  fill=text)) +
+    geom_density_ridges(alpha=0.6, stat="binline", bins=30) +
     theme_ridges() +
     theme(
       legend.position="none",
-      panel.spacing = unit(0.1, "lines"),
-      strip.text.x = element_text(size = 8)
+      panel.spacing = unit(0.3, "lines"),
+      strip.text.x = element_text(size = 10)
     ) +
     xlab("") +
     ylab("Assigned Probability (%)")
@@ -86,7 +86,7 @@ library(plotly)
 
 # Plot
 p <- variation_data %>% 
-  ggplot( aes(x=year, y=count, fill=word, text=word)) +
+  ggplot( aes(x=year, y=count_total, fill=word, text=word)) +
     geom_area( ) +
     scale_fill_viridis(discrete = TRUE) +
     theme(legend.position="none") +
