@@ -28,22 +28,20 @@ clean_words <- words %>%
 
 ```{r}
 words <- clean_words %>%
-  unite(phrase, c("word1", "word2"), sep = " ")
+  unite(phrase, c("word1", "word2"))
 ```
 
 ```{r}
-
-words %>% count(phrase, sort = TRUE)
+count(words, phrase, sort = TRUE)
 ```
 
 
 ```{r}
 library(widyr)
-pair_count(words, word, unique_pair = TRUE, sort = TRUE)
 
-#pair_counts <- words %>%
- # summarise(count = n()) %>%
-  #separate(phrase, c('word1', 'word2'))
+pairs <- words %>%
+  summarise(n_count = n()) %>%
+  separate(words,phrase, c('word1', 'word2'))
 ```
 
 ```{r}
