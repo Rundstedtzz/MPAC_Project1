@@ -15,8 +15,8 @@ library(ggplot2)
 server <- function(input, output, session) {
   
   setwd("/Users/ricky/Desktop/myproject/MPAC_Project1")
-  parole1 <- read_csv(file = "/data/parole_final.csv")
-  parole2 <- read_csv(file = "/data/parole_final2.csv")
+  parole1 <- read_csv(file = "../data/parole_final.csv")
+  parole2 <- read_csv(file = "../data/parole_final2.csv")
   output$plot <- renderPlot({
     
     #Plot
