@@ -16,22 +16,21 @@ server <- function(input, output, session) {
   
 #  setwd("/Users/ricky/Desktop/myproject/MPAC_Project1")
   parole1 <- read_csv(file = "../data/parole_final.csv")
-  parole2 <- read_csv(file = "../data/parole_final2.csv")
   output$plot <- renderPlot({
     
     #Plot
     parole1 %>%
+      group_by(year, pubtitle) %>%
+      mutate(percentage_negative = negative/(negative + positive + neutral)) %>%
+      arrange(desc(percentage_negative)) %>%
       filter(pubtitle %in% c(input$press)) %>%
       #filter(pos %in% c(input$pos)) %>%
-      #filter(sentiment %in% c(input$sentiment)) %>%
       #filter(year %in% c(input$year)) %>%
       #filter(Title %in% c(input$title)) %>%
-      arrange(desc(count)) %>%
-      #head(input$top_words) %>%
-      ggplot(aes(count, word)) +
-      geom_col() +
-      ggtitle("Most common words in Maine news around parole") +
-      labs(subtitle = "from texts", y = "word", x = "count/frequency") +
+      ggplot(aes(x=year, y=input$y_axis, fill=pubtitle)) +
+      geom_area(stat="identity", position=position_dodge()) +
+      ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+      labs(subtitle = "by press") +
       theme_minimal()
 
   })
@@ -62,23 +61,11 @@ ui <- fluidPage(
                        choices = list("Negative" = 1, "Neutral" = 2, "Positive" = 3)),
     hr(),
     fluidRow(column(3, verbatimTextOutput("value"))),
-    
-    #title
-    textInput("title", label = h3("Title input"), value = "Enter title here: "),
-    
-    hr(),
-    fluidRow(column(3, verbatimTextOutput("value"))),
 
     
     fluidRow(
       column(4, verbatimTextOutput("range"))
     ),
-    
-    #Top words
-    numericInput("top_words", label = h3("Top words"), value = 1),
-    
-    hr(),
-    fluidRow(column(3, verbatimTextOutput("value"))),
     
     #year
     fluidRow(
@@ -88,14 +75,19 @@ ui <- fluidPage(
       )
     ),
     
+    #count or percentage
+    checkboxGroupInput("y_axis", label = h3("Y-axis"), 
+                       choices = list("count" = 1, "percentage_negative" = 2)),
+    hr(),
+    fluidRow(column(3, verbatimTextOutput("value"))),
+    
     hr()
     
       ),
     mainPanel(
               plotOutput("plot"))
     
-)
-)
+))
 
 
 

@@ -33,6 +33,18 @@ parole_elder <- parole_adj_adv %>%
   filter(word == "elder")
 ```
 
+```{r}
+parole_adj_adv %>%
+    arrange(desc(count)) %>%
+    head(10) %>%
+    ggplot(aes(count, word)) +
+    geom_col() +
+    ggtitle("Most common words in Maine news around parole") +
+    labs(subtitle = "from texts", y = "word", x = "count/frequency") +
+    theme_minimal()
+
+```
+
 
 ##Adult
 ```{r}

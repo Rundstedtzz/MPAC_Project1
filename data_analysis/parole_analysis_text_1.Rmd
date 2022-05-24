@@ -5,6 +5,10 @@ date: "5/16/2022"
 output: html_document
 ---
 
+```{r}
+library(hrbrthemes)
+```
+
 
 ##Use parole_analysis_data_2
 
@@ -41,6 +45,15 @@ common_negative_words <- parole_adj_adv %>%
 common_negative_words
 ```
 
+```{r}
+parole1 %>%
+    arrange(desc(count)) %>%
+    ggplot(aes(count, word)) +
+    geom_col() +
+    ggtitle("Most common words in Maine news around parole") +
+    labs(subtitle = "from texts", y = "word", x = "count/frequency") +
+    theme_minimal()
+```
 
 ##Use parole_analysis_data_2
 
@@ -55,8 +68,11 @@ parole_sub8 <- parole_adj_adv %>%
 
 parole_sub8 %>%
   ggplot(aes(x=year, y=count, fill=pubtitle)) +
-  geom_bar(stat="identity", position=position_dodge()) +
-  ggtitle("frequency of negative adjectives or adverbs in Maine news around parole by press") 
+  geom_area(stat="identity", position=position_dodge()) +
+  geom_line(size = 1) +
+  geom_point(size = 1) +
+  ggtitle("frequency of negative adjectives or adverbs in Maine news around parole by press") +
+  theme_minimal()
 ```
 
 ##Use parole_analysis_data_2
@@ -73,7 +89,8 @@ parole_sub9 <- parole_adj_adv %>%
 parole_sub9 %>%
   ggplot(aes(x=year, y=count, fill=pubtitle)) +
   geom_bar(stat="identity", position=position_dodge()) +
-  ggtitle("frequency of positive adjectives or adverbs in Maine news around parole by press") 
+  ggtitle("frequency of positive adjectives or adverbs in Maine news around parole by press") +
+  theme_minimal()
 ```
 
 ```{r count-1}
@@ -102,9 +119,10 @@ parole_sub11 <- parole_sub_wide %>%
 
 parole_sub11 %>%
   ggplot(aes(x=year, y=percentage_negative, fill=pubtitle)) +
-  geom_bar(stat="identity", position=position_dodge()) +
+  geom_area(stat="identity", position=position_dodge()) +
   ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
-  labs(subtitle = "by press")
+  labs(subtitle = "by press") +
+  theme_minimal()
 ```
 
 
