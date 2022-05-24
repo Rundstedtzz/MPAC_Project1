@@ -138,5 +138,9 @@ plot2 <- variation_data2 %>%
 # Turn it interactive
 plot2 <- ggplotly(plot2, tooltip="text")
 plot2
+
+# save the widget
+# library(htmlwidgets)
+saveWidget(plot2, file="sentiment_stacked_area_chart.html")
 ```
 
