@@ -10,30 +10,32 @@
 library(shiny)
 library(dplyr)
 library(ggplot2)
+library(lubridate)
 
 # Define server logic required to draw a xxx
 server <- function(input, output, session) {
   
 #  setwd("/Users/ricky/Desktop/myproject/MPAC_Project1")
-  parole1 <- read_csv(file = "../data/parole_final.csv")
-  parole2 <- read_csv(file = "../data/parole_final2.csv")
+  
+  parole1 <- read_csv(file = "https://raw.githubusercontent.com/Rundstedtzz/MPAC_Project1/main/data/parole_final.csv")
   output$plot <- renderPlot({
     
     #Plot
-    parole1 %>%
+
+    parole_final %>%
       filter(pubtitle %in% c(input$press)) %>%
-      #filter(pos %in% c(input$pos)) %>%
-      #filter(sentiment %in% c(input$sentiment)) %>%
-      #filter(year %in% c(input$year)) %>%
-      #filter(Title %in% c(input$title)) %>%
-      arrange(desc(count)) %>%
-      #head(input$top_words) %>%
-      ggplot(aes(count, word)) +
+      filter(pos %in% c(input$pos)) %>%
+      filter(year > year(input$year[1]) & year < year(input$year[2])) %>%
+      filter(sentiment %in% c(input$sentiment)) %>%
+      count(word, sort = TRUE) %>%
+      slice_max(n, n = input$top_words) %>%
+      mutate(word = reorder(word, n)) %>%
+      ggplot(aes(n, word)) +
       geom_col() +
       ggtitle("Most common words in Maine news around parole") +
       labs(subtitle = "from texts", y = "word", x = "count/frequency") +
       theme_minimal()
-
+    
   })
 }
 
@@ -42,60 +44,47 @@ server <- function(input, output, session) {
 ui <- fluidPage(
     titlePanel("Interactive Visualization of Parole Sentiment"),
     sidebarLayout(
-      sidebarPanel(
+      sidebarPanel(width = 5, 
         
     # press select
     checkboxGroupInput("press", label = h3("Newspaper"), 
-                       choices = list("Sun Journal" = 1, "Bangor Daily News" = 2, "Portland Press Herald" = 3)),
-    hr(),
-    fluidRow(column(3, verbatimTextOutput("value"))),
-    
-    #pos
-    checkboxGroupInput("pos", label = h3("Part of speech"), 
-                       choices = list("Noun" = 1, "Verb" = 2, "Adjective" = 3, 
-                                      "Adverb" = 4)),
-    hr(),
-    fluidRow(column(3, verbatimTextOutput("value"))),
-    
-    #sentiment
-    checkboxGroupInput("sentiment", label = h3("Sentiment"), 
-                       choices = list("Negative" = 1, "Neutral" = 2, "Positive" = 3)),
-    hr(),
-    fluidRow(column(3, verbatimTextOutput("value"))),
-    
-    #title
-    textInput("title", label = h3("Title input"), value = "Enter title here: "),
-    
-    hr(),
-    fluidRow(column(3, verbatimTextOutput("value"))),
+                       choices = list("Sun Journal" = "Sun Journal", 
+                                      "Bangor Daily News" = "Bangor Daily News", 
+                                      "Portland Press Herald" = "Portland Press Herald")),
 
-    
-    fluidRow(
-      column(4, verbatimTextOutput("range"))
-    ),
-    
+    #pos
+    checkboxGroupInput("pos", label = h3("Part of speech"),
+                        choices = list("Noun" = "Noun", 
+                                       "Adjective" = "Adjective",
+                                       "Adverb" = "Adverb")),
+
+    #sentiment
+    checkboxGroupInput("sentiment", label = h3("Sentiment"),
+                        choices = list("negative" = "negative", 
+                                       "neutral" = "neutral", 
+                                       "positive" = "positive")),
+
     #Top words
     numericInput("top_words", label = h3("Top words"), value = 1),
-    
-    hr(),
-    fluidRow(column(3, verbatimTextOutput("value"))),
-    
+
+
     #year
-    fluidRow(
-      column(4,
-             sliderInput("year", label = h3("Year"), min = 2000, 
-                         max = 2022, value = c(2000, 2022))
-      )
+
+    sliderInput(inputId = "year",
+                 label = "Year",
+                 min = lubridate::ymd("20000101"),
+                 max = lubridate::ymd("20220501"),
+                 value = lubridate::ymd(c("20000101","20220501")),
+                 step = 1,
+                 timeFormat = "%Y")
+
     ),
-    
-    hr()
-    
-      ),
-    mainPanel(
+      
+    mainPanel(width = 7, 
               plotOutput("plot"))
-    
+    )
 )
-)
+
 
 
 

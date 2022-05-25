@@ -66,14 +66,31 @@ parole_sub8 <- parole_adj_adv %>%
   arrange(desc(count)) %>%
   na.omit()
 
+
 parole_sub8 %>%
   ggplot(aes(x=year, y=count, fill=pubtitle)) +
-  geom_area(stat="identity", position=position_dodge()) +
-  geom_line(size = 1) +
-  geom_point(size = 1) +
-  ggtitle("frequency of negative adjectives or adverbs in Maine news around parole by press") +
-  theme_minimal()
+  geom_area() +
+  ggtitle("frequency of negative adjectives or adverbs in Maine news around parole by press") 
 ```
+
+```{r}
+parole_sub11 %>%
+      mutate(percentage_negative = negative/(negative + positive + neutral)) %>%
+      mutate(percentage_positive = positive/(negative + positive + neutral)) %>%
+      group_by(year, pubtitle) %>%
+      arrange(desc(percentage_negative)) %>%
+      na.omit() %>%
+      #filter(sentiment == input$sentiment) %>%
+      #filter(year %in% c(input$year)) %>%
+
+      ggplot(aes(x=year, y=negative, fill=pubtitle)) +
+      geom_area() +
+      ggtitle("frequency of negative adjectives or adverbs in Maine news around parole by press") +
+      theme_minimal()
+```
+
+
+
 
 ##Use parole_analysis_data_2
 

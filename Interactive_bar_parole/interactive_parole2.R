@@ -10,29 +10,32 @@
 library(shiny)
 library(dplyr)
 library(ggplot2)
+library(lubridate)
 
 # Define server logic required to draw a xxx
 server <- function(input, output, session) {
   
 #  setwd("/Users/ricky/Desktop/myproject/MPAC_Project1")
   parole1 <- read_csv(file = "../data/parole_final.csv")
+  parole2 <- read_csv(file = "../data/parole_final2.csv")
   output$plot <- renderPlot({
     
     #Plot
-    parole1 %>%
-      group_by(year, pubtitle) %>%
-      mutate(percentage_negative = negative/(negative + positive + neutral)) %>%
-      arrange(desc(percentage_negative)) %>%
-      filter(pubtitle %in% c(input$press)) %>%
-      #filter(pos %in% c(input$pos)) %>%
-      #filter(year %in% c(input$year)) %>%
-      #filter(Title %in% c(input$title)) %>%
-      ggplot(aes(x=year, y=input$y_axis, fill=pubtitle)) +
-      geom_area(stat="identity", position=position_dodge()) +
-      ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
-      labs(subtitle = "by press") +
-      theme_minimal()
 
+    parole_sub11 %>%
+      mutate(percentage_negative = negative/(negative + positive + neutral)) %>%
+      mutate(percentage_positive = positive/(negative + positive + neutral)) %>%
+      group_by(year, pubtitle) %>%
+      arrange(desc(input$axis)) %>%
+      na.omit() %>%
+      filter(pubtitle %in% c(input$press)) %>%
+      filter(year > year(input$year[1]) & year < year(input$year[2])) %>%
+      
+      ggplot(aes(x=year, y=input$axis, fill=pubtitle)) +
+      geom_bar() +
+      ggtitle("frequency of negative words in Maine news around parole") +
+      labs(subtitle = "by press")
+    
   })
 }
 
@@ -41,53 +44,35 @@ server <- function(input, output, session) {
 ui <- fluidPage(
     titlePanel("Interactive Visualization of Parole Sentiment"),
     sidebarLayout(
-      sidebarPanel(
+      sidebarPanel(width = 5, 
         
     # press select
     checkboxGroupInput("press", label = h3("Newspaper"), 
-                       choices = list("Sun Journal" = 1, "Bangor Daily News" = 2, "Portland Press Herald" = 3)),
-    hr(),
-    fluidRow(column(3, verbatimTextOutput("value"))),
-    
-    #pos
-    checkboxGroupInput("pos", label = h3("Part of speech"), 
-                       choices = list("Noun" = 1, "Verb" = 2, "Adjective" = 3, 
-                                      "Adverb" = 4)),
-    hr(),
-    fluidRow(column(3, verbatimTextOutput("value"))),
-    
-    #sentiment
-    checkboxGroupInput("sentiment", label = h3("Sentiment"), 
-                       choices = list("Negative" = 1, "Neutral" = 2, "Positive" = 3)),
-    hr(),
-    fluidRow(column(3, verbatimTextOutput("value"))),
+                       choices = list("Sun Journal" = "Sun Journal", 
+                                      "Bangor Daily News" = "Bangor Daily News", 
+                                      "Portland Press Herald" = "Portland Press Herald")),
 
-    
-    fluidRow(
-      column(4, verbatimTextOutput("range"))
-    ),
+    #Y-axis
+    radioButtons("axis", label = h3("Y-axis"),
+                       choices = list("negative" = "negative count", 
+                                      "positive" = "positive count",
+                                      "percentage nagetive" = "percentage_negative",
+                                      "percentage positive" = "percentage_positive")),
     
     #year
-    fluidRow(
-      column(4,
-             sliderInput("year", label = h3("Year"), min = 2000, 
-                         max = 2022, value = c(2000, 2022))
-      )
+    sliderInput(inputId = "year",
+                 label = "Year",
+                 min = lubridate::ymd("20000101"),
+                 max = lubridate::ymd("20220501"),
+                 value = lubridate::ymd(c("20000101","20220501")),
+                 step = 1,
+                 timeFormat = "%Y")
     ),
-    
-    #count or percentage
-    checkboxGroupInput("y_axis", label = h3("Y-axis"), 
-                       choices = list("count" = 1, "percentage_negative" = 2)),
-    hr(),
-    fluidRow(column(3, verbatimTextOutput("value"))),
-    
-    hr()
-    
-      ),
-    mainPanel(
+      
+    mainPanel(width = 7, 
               plotOutput("plot"))
-    
-))
+    )
+)
 
 
 

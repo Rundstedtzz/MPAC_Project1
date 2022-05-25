@@ -48,6 +48,17 @@ parole_sub4 <- parole_sub2 %>%
 
 ```{r Attaching Sentiments to Words}
 parole_sentiments <- get_sentiments()
+parole_final <- parole_sub2 %>%
+  left_join(parole_sentiments, by = "word")
+# anti_join(parole_sentiments) 
+
+parole_final[is.na(parole_final)] <- "neutral"
+```
+
+
+
+```{r Attaching Sentiments to Words}
+parole_sentiments <- get_sentiments()
 parole_adj_adv <- parole_sub4 %>%
   left_join(parole_sentiments, by = "word")
 # anti_join(parole_sentiments) 
