@@ -54,7 +54,7 @@ parole_final <- parole_sub2 %>%
 
 parole_final[is.na(parole_final)] <- "neutral"
 
-#write_csv(parole_sub2, "parole_final.csv")
+#write_csv(parole_final, "parole_final.csv")
 ```
 
 

@@ -16,13 +16,12 @@ library(lubridate)
 server <- function(input, output, session) {
   
 #  setwd("/Users/ricky/Desktop/myproject/MPAC_Project1")
-  parole1 <- read_csv(file = "../data/parole_final.csv")
-  parole2 <- read_csv(file = "../data/parole_final2.csv")
+  parole2 <- read_csv(file = "https://raw.githubusercontent.com/Rundstedtzz/MPAC_Project1/main/data/parole_final2.csv")
   output$plot <- renderPlot({
     
     #Plot
 
-    parole_sub11 %>%
+    parole2 %>%
       mutate(percentage_negative = negative/(negative + positive + neutral)) %>%
       mutate(percentage_positive = positive/(negative + positive + neutral)) %>%
       group_by(year, pubtitle) %>%
@@ -32,9 +31,9 @@ server <- function(input, output, session) {
       filter(year > year(input$year[1]) & year < year(input$year[2])) %>%
       
       ggplot(aes(x=year, y=input$axis, fill=pubtitle)) +
-      geom_bar(stat="identity", position=position_dodge()) +
-      ggtitle("frequency of negative words in Maine news around parole") +
-      labs(subtitle = "by press")
+      geom_area() +
+      ggtitle("frequency of negative adjectives or adverbs in Maine news around parole by press") +
+      theme_minimal()
     
   })
 }
