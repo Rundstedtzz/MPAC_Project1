@@ -22,7 +22,7 @@ server <- function(input, output, session) {
     
     #Plot
 
-    parole_final %>%
+    parole1 %>%
       filter(pubtitle %in% c(input$press)) %>%
       filter(pos %in% c(input$pos)) %>%
       filter(year > year(input$year[1]) & year < year(input$year[2])) %>%

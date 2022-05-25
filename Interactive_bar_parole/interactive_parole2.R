@@ -32,7 +32,7 @@ server <- function(input, output, session) {
       filter(year > year(input$year[1]) & year < year(input$year[2])) %>%
       
       ggplot(aes(x=year, y=input$axis, fill=pubtitle)) +
-      geom_bar() +
+      geom_bar(stat="identity", position=position_dodge()) +
       ggtitle("frequency of negative words in Maine news around parole") +
       labs(subtitle = "by press")
     

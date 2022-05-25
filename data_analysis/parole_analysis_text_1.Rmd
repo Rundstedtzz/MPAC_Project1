@@ -140,6 +140,8 @@ parole_sub11 %>%
   ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
   labs(subtitle = "by press") +
   theme_minimal()
+
+#write_csv(parole_sub11, "parole_final2.csv")
 ```
 
 

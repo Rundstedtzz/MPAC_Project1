@@ -53,6 +53,8 @@ parole_final <- parole_sub2 %>%
 # anti_join(parole_sentiments) 
 
 parole_final[is.na(parole_final)] <- "neutral"
+
+#write_csv(parole_sub2, "parole_final.csv")
 ```
 
 
