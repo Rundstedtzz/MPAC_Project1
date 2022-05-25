@@ -98,7 +98,8 @@ parole_sub11 %>%
   ggplot(aes(x=year, y=percentage_negative, fill=pubtitle)) +
   geom_bar(stat="identity", position=position_dodge()) +
   ggtitle("ratio of negative words occurance in Maine news around parole") +
-  labs(subtitle = "by press")
+  labs(subtitle = "by press") +
+  theme_minimal()
 ```
 
 
