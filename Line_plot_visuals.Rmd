@@ -103,3 +103,44 @@ p
 # saveWidget(p, file=paste0( getwd(), "/HtmlWidget/ggplotlyStackedareachart.html"))
 ```
 
+##General Plot of Negative and Positive Sentiments
+
+#Creating the Data Set
+
+```{r general dataset}
+variation_data2 <- parole_adj_adv %>%
+  ungroup() %>%
+  group_by(sentiment, year) %>%
+  summarise(count_total = sum(count)) %>%
+  filter(sentiment %in% c("positive", "negative")) %>%
+  arrange(year)
+```
+#Create secondary filled line plot
+
+
+```{r Plot #2}
+plot2 <- variation_data2 %>% 
+  ggplot( aes(x=year, y=count_total, fill=sentiment, text=sentiment)) +
+    geom_area() +
+    scale_fill_viridis(discrete = TRUE) +
+    theme(legend.position="none") +
+    ggtitle("Sentiments Over the Course of 20 years") +
+    #theme_ipsum() +
+    theme_minimal() +
+    #theme_classic() +
+  labs(
+    x = "Year", 
+    y = "Frequency"
+    ) +
+    theme(legend.position="none")
+
+
+# Turn it interactive
+plot2 <- ggplotly(plot2, tooltip="text")
+plot2
+
+# save the widget
+# library(htmlwidgets)
+saveWidget(plot2, file="sentiment_stacked_area_chart.html")
+```
+
