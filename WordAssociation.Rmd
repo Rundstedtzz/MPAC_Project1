@@ -1,4 +1,4 @@
-
+creat bi-grams of phrases in the news
 ```{r}
 library(dplyr)
 library(janeaustenr)
@@ -13,50 +13,84 @@ words <- unnest_tokens(data, word, text, token = "ngrams", n = 2)
 words
 ```
 
-
+seperate the phrases into pairs of words
 ```{r}
 library(tidyr)
 words <- words %>%
- separate(word, c('word1', 'word2'))
+  separate(word, c('word1', 'word2'))
 ```
 
+filter out stop words and unrelated info
 ```{r}
 clean_words <- words %>%
   anti_join(stop_words, by= c("word1" = "word")) %>%
-  anti_join(stop_words, by= c("word2" = "word")) 
+  anti_join(stop_words, by= c("word2" = "word")) %>%
+  filter(word1 != "pages" & word2 != "pages")
+```
+
+unit back to phrase
+```{r}
+clean_words <- clean_words %>%
+  unite(phrase, c("word1", "word2"), sep = " ")
+```
+
+count frequencies of bi-grams
+```{r}
+bigram_counts <- clean_words %>%
+  group_by(phrase) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) 
+```
+
+plot the frequency bar chart
+```{r}
+
+```
+
+separated words for network plot
+```{r}
+clean_words <- bigram_counts %>%
+ separate(phrase, c('word1', 'word2'))
 ```
 
 ```{r}
-words <- clean_words %>%
-  unite(phrase, c("word1", "word2"))
+myvars <- c("word1", "word2","count")
+bigram_tograph <- clean_words[myvars]
 ```
 
 ```{r}
-count(words, phrase, sort = TRUE)
+bigram_graph <- bigram_tograph %>%
+  filter(count > 4) %>%
+  graph_from_data_frame()
+```
+
+```{r fig.width=7}
+More_than_50 <- bigram_counts %>%
+  filter(count >= 40) %>%
+  arrange(-count) 
+ggplot(More_than_50, aes(x = count, y = phrase)) +
+  geom_col(fill = "#669933", colour = "black")
 ```
 
 
-```{r}
-library(widyr)
-
-pairs <- words %>%
-  summarise(n_count = n()) %>%
-  separate(words,phrase, c('word1', 'word2'))
-```
-
-```{r}
+plot network of words
+```{r fig.width= 8}
 library(igraph)
 library(ggraph)
 
-clean_words %>%
-        filter(n >= 40) %>%
-        graph_from_data_frame() %>%
-        ggraph(layout = "fr") +
-        geom_edge_link(aes(edge_alpha = n, edge_width = n)) +
-        geom_node_point(color = "darkslategray4", size = 5) +
-        geom_node_text(aes(label = name), vjust = 1.8) +
-        ggtitle(expression(paste("Word connections"))) +
-        theme_void()
+words_network <- clean_words %>%
+  filter(count >= 25) 
+
+set.seed(2000)
+
+words_network %>%
+  graph_from_data_frame() %>%
+  ggraph(layout = "fr") +
+  geom_edge_link(aes(edge_alpha = count, edge_width = count)) +
+  geom_node_point(color = "mediumpurple", size = 5) +
+  geom_node_text(aes(label = name), vjust = 1.8) +
+  ggtitle(expression(paste("Network of Words: Pairs of words that appeared together more than 25 times"))) +
+  theme_void()
 ```
 
 
