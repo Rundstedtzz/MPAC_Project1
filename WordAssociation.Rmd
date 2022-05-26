@@ -69,7 +69,7 @@ More_than_50 <- bigram_counts %>%
   filter(count >= 40) %>%
   arrange(-count) 
 ggplot(More_than_50, aes(x = count, y = phrase)) +
-  geom_col(fill = "#669933", colour = "black")
+  geom_col(fill = "#669933", colour = "black") 
 ```
 
 

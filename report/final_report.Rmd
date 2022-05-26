@@ -139,6 +139,36 @@ parole_adj_adv <- parole_sub4 %>%
 parole_adj_adv[is.na(parole_adj_adv)] <- "neutral"
 ```
 
+```{r attaching-sentiments-text-with-title}
+parole_sentiments <- get_sentiments()
+
+parole_sub2 <- parole_sub %>%
+  select(text, Title, year, pubtitle) %>%
+  unnest_tokens(output = word, input = text) %>%
+  anti_join(stop_words) %>%
+  mutate(word = tolower(word)) 
+
+parts_of_speech_ad <- parts_of_speech %>%
+  filter(pos %in% c("Adjective", "Adverb", "Noun", "Verb"))
+
+parole_sub2 <- parole_sub2 %>%
+  left_join(parts_of_speech_ad, by = "word")
+
+parole_sub4 <- parole_sub2 %>%
+  group_by(Title, year, pubtitle, word, pos) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sentiments <- get_sentiments()
+parole_text_title <- parole_sub4 %>%
+  left_join(parole_sentiments, by = "word")
+# anti_join(parole_sentiments) 
+
+parole_text_title[is.na(parole_text_title)] <- "neutral"
+
+```
+
 ```{r attaching-sentiments-title}
 parole_sub2 <- parole_sub %>%
   select(Title, year, pubtitle) %>%
@@ -249,6 +279,7 @@ wordcloud(words = parole_abstract_wordcloud$word, freq = parole_abstract_wordclo
           colors=brewer.pal(8, "Dark2"))
 ```
 
+##Part II - Sentiment analysis
 2. R-Shiny Bar Plot
 ```{r link}
 # file is in "/project/MPAC_Project1/Interactive_bar_parole/interactive_parole.R"
@@ -256,6 +287,35 @@ wordcloud(words = parole_abstract_wordcloud$word, freq = parole_abstract_wordclo
 ```
 
 3. Stacked Line Plot
+```{r general}
+variation_data2 <- parole_adj_adv %>%
+  ungroup() %>%
+  group_by(sentiment, year) %>%
+  summarise(count_total = sum(count)) %>%
+  filter(sentiment %in% c("positive", "negative")) %>%
+  arrange(year)
+
+plot2 <- variation_data2 %>% 
+  ggplot( aes(x=year, y=count_total, fill=sentiment, text=sentiment)) +
+    geom_area(alpha = 0.6) +
+    scale_fill_viridis(discrete = TRUE) +
+    theme() +
+    ggtitle("Sentiments Over the Course of 20 years") +
+    theme_ipsum() +
+    #theme_classic() +
+  labs(
+    x = "Year", 
+    y = "Frequency"
+    ) +
+    theme()
+
+
+# Turn it interactive
+plot2 <- ggplotly(plot2, tooltip="text")
+plot2
+
+```
+
 ```{r general-negative-1}
 parole_sub_stacked1 <- parole_text %>%
   filter(pos == "Adjective" | pos == "Adverb") %>%
@@ -347,22 +407,236 @@ parole_sub_stacked2 %>%
 ```
 
 ```{r specific-words}
-p <- variation_data %>% 
-  ggplot(aes(x=year, y=count_total, fill=word, text=word)) +
-    geom_area(alpha = 0.6) +
-    scale_fill_viridis(discrete = TRUE) +
-    ggtitle("Popularity of Certain Words in the past 20 years") +
-    theme_ipsum() +
-    theme_minimal()
+#parole_adj_adv <- subset(parole_adj_adv, select = -pubtitle)
+#parole_adj_adv <- subset(parole_adj_adv, select = -pos)
+
+#variation_data <- parole_adj_adv %>%
+# ungroup() %>%
+# filter(word %in% c("violent", "dangerous", "recidivism")) %>%
+# group_by(word, year) %>%
+# summarise(count_total = sum(count)) %>%
+# arrange(year)
+
+#p <- variation_data %>% 
+# ggplot(aes(x=year, y=count_total, fill=word, text=word)) +
+#   geom_area(alpha = 0.6) +
+#   scale_fill_viridis(discrete = TRUE) +
+#   ggtitle("Popularity of Certain Words in the past 20 years") +
+#   theme_ipsum() +
+#   theme_minimal()
 
 # Turn it interactive
-p <- ggplotly(p, tooltip="text")
-p
+#p <- ggplotly(p, tooltip="text")
+#p
 ```
 
+##Part III - Psychology Research
 4. PSY Research
+```{r create-filters}
+parole_adult <- parole_text_title %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(word == "adult")
+
+parole_juvenile <- parole_text_title %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(word == "juvenile" | word == "teenager")
+
+parole_violent <- parole_text_title %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(word == "violent" | word == "violence")
+```
+
+```{r adult-negative}
+parole_adult_final <- parole_adj_adv %>%
+ mutate(dummy = ifelse(Title %in% parole_adult$Title, "adult", "no-adult")) %>%
+ filter(pos == "Adjective" | pos == "Adverb") 
+
+parole_adult_final <- parole_adult_final%>%
+  group_by(sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) 
+
+parole_adult_final %>%
+  ggplot(aes(x=dummy, y=percentage_negative, fill = dummy)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'adult'") +
+  theme_minimal()
+```
+
+```{r adult-positive}
+parole_adult_final <- parole_adj_adv %>%
+ mutate(dummy = ifelse(Title %in% parole_adult$Title, "adult", "no-adult")) %>%
+ filter(pos == "Adjective" | pos == "Adverb") 
+
+parole_adult_final <- parole_adult_final%>%
+  group_by(sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_positive = positive/(negative + positive + neutral)) 
+
+parole_adult_final %>%
+  ggplot(aes(x=dummy, y=percentage_positive, fill = dummy)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("ratio of positive adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'adult'") +
+  theme_minimal()
+```
+
+```{r juvenile-negative}
+parole_juvenile_final <- parole_adj_adv %>%
+  mutate(dummy = ifelse(Title %in% parole_juvenile$Title, "juvenile/teenager", "no-juvenile/teenager")) %>%
+  filter(pos == "Adjective" | pos == "Adverb") 
+
+parole_juvenile_final <- parole_juvenile_final%>%
+  group_by(sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) 
+
+parole_juvenile_final %>%
+  ggplot(aes(x=dummy, y=percentage_negative, fill = dummy)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'juvenile/teenager'") +
+  theme_minimal()
+```
+
+```{r juvenile-positive}
+parole_juvenile_final <- parole_adj_adv %>%
+  mutate(dummy = ifelse(Title %in% parole_juvenile$Title, "juvenile/teenager", "no-juvenile/teenager")) %>%
+  filter(pos == "Adjective" | pos == "Adverb") 
+
+parole_juvenile_final <- parole_juvenile_final%>%
+  group_by(sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_positive = positive/(negative + positive + neutral)) 
+
+parole_juvenile_final %>%
+  ggplot(aes(x=dummy, y=percentage_positive, fill = dummy)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("ratio of positive adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'juvenile/teenager'") +
+  theme_minimal()
+```
+
+```{r violence-negative}
+parole_violent_final <- parole_adj_adv %>%
+  mutate(dummy = ifelse(Title %in% parole_violent$Title, "violent", "no-violent")) %>%
+  filter(pos == "Adjective" | pos == "Adverb")
+
+parole_violent_final <- parole_violent_final%>%
+  group_by(sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) 
+
+parole_violent_final %>%
+  ggplot(aes(x=dummy, y=percentage_negative, fill = dummy)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'violent/violence'") +
+  theme_minimal()
+```
+
+```{r violence-positive}
+parole_violent_final <- parole_adj_adv %>%
+  mutate(dummy = ifelse(Title %in% parole_violent$Title, "violent", "no-violent")) %>%
+  filter(pos == "Adjective" | pos == "Adverb")
+
+parole_violent_final <- parole_violent_final%>%
+  group_by(sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_positive = positive/(negative + positive + neutral)) 
+
+parole_violent_final %>%
+  ggplot(aes(x=dummy, y=percentage_positive, fill = dummy)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("ratio of positive adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'violent/violence'") +
+  theme_minimal()
+```
 
 
+##Part IV - word association and network of words
 5. Word Association
+```{r bigram-frequencies}
+data <- parole_sub
+
+words <- unnest_tokens(data, word, text)
+words <- words %>% anti_join(stop_words)
+words <- unnest_tokens(data, word, text, token = "ngrams", n = 2)
+
+words
+
+words <- words %>%
+  separate(word, c('word1', 'word2'))
+
+clean_words <- words %>%
+  anti_join(stop_words, by= c("word1" = "word")) %>%
+  anti_join(stop_words, by= c("word2" = "word")) %>%
+  filter(word1 != "pages" & word2 != "pages")
+
+clean_words <- clean_words %>%
+  unite(phrase, c("word1", "word2"), sep = " ")
+
+bigram_counts <- clean_words %>%
+  group_by(phrase) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) 
+
+clean_words <- bigram_counts %>%
+ separate(phrase, c('word1', 'word2'))
+
+myvars <- c("word1", "word2","count")
+bigram_tograph <- clean_words[myvars]
+
+More_than_50 <- bigram_counts %>%
+  filter(count >= 50) %>%
+  arrange(-count) 
+ggplot(More_than_50, aes(x = count, y = phrase)) +
+  geom_col(fill = "#669933", colour = "black") + 
+  theme_minimal()
+```
+
+```{r test-bigram}
+#More_than_50 <- bigram_counts %>%
+# filter(count >= 40) %>%
+# arrange(-count) %>%
+# mutate(sort_count = fct_reorder(phrase, -count))
+#ggplot(More_than_50, aes(x = count, y = phrase)) +
+# scale_fill_viridis(discrete = TRUE) +
+# theme_ipsum() +
+# geom_col(fill = "slateblue3", colour = "white", alpha = 0.6)+
+# theme_minimal()
+```
+
+```{r word-association}
+
+```
+
+
+
 
 

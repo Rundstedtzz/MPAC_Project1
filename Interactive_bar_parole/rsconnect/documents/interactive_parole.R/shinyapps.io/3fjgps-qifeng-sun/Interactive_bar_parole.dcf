@@ -5,10 +5,10 @@ account: 3fjgps-qifeng-sun
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 6368780
-bundleId: 5942139
+bundleId: 5944414
 url: https://3fjgps-qifeng-sun.shinyapps.io/Interactive_bar_parole/
-when: 1653459319.67497
-lastSyncTime: 1653459319.67499
+when: 1653500181.02302
+lastSyncTime: 1653500181.02304
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: CopyOfinteractive_parole.R|interactive_parole_backup.R|interactive_parole2.R|test/app.R
