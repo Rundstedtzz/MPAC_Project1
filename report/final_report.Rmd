@@ -1,13 +1,23 @@
 ---
-title: "Report"
-author: "Ricky Sun"
-date: "5/22/2022"
-output: html_document
+title: "MPAC Project 1 Technical Teport"
+author: "Crosby Byrnes, Ricky Sun, Suzy Ryckman, and Cheryl Jiao"
+date: "`r format(Sys.Date(), '%A %b %Y')`"
+output: 
+  html_document:
+    theme: cosmo
+    highlight: haddock
+    number_sections: TRUE
+    toc: TRUE
+    toc_float: TRUE
+    toc_depth: 1
 ---
 
 #Set up
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
 
-```{r load-packages}
+```{r load-packages, echo = FALSE, message = FALSE, warning = FALSE}
 library(readr)
 library(tidytext)
 library(stringr)
@@ -35,16 +45,16 @@ library(hrbrthemes)
 devtools::install_github("ropensci/plotly")
 library(plotly)
 
-library(igraph)
-library(ggraph)
+#library(igraph)
+#library(ggraph)
 library(widyr)
 library(tidyr)
 ```
 
 ```{r load-data}
-parole_data <- read_csv("../data/proquest_1.csv")
+parole_data <- read_csv("https://raw.githubusercontent.com/Rundstedtzz/MPAC_Project1/main/data/proquest_1.csv")
 
-parole_text_1 <- read.delim("../data/proquest_2.txt", header = TRUE)
+parole_text_1 <- read.delim("https://raw.githubusercontent.com/Rundstedtzz/MPAC_Project1/main/data/proquest_2.txt", header = TRUE)
 colnames(parole_text_1)[1] <- "id"
 ```
 
@@ -447,6 +457,38 @@ parole_violent <- parole_text_title %>%
 ```
 
 ```{r adult-negative}
+parole_sub2 <- parole_sub %>%
+  select(text, Title, year, pubtitle) %>%
+  unnest_tokens(output = word, input = text) %>%
+  anti_join(stop_words) %>%
+  mutate(word = tolower(word)) 
+
+parts_of_speech_ad <- parts_of_speech %>%
+  filter(pos %in% c("Adjective", "Adverb", "Noun", "Verb"))
+
+parole_sub2 <- parole_sub2 %>%
+  left_join(parts_of_speech_ad, by = "word")
+
+parole_sub3 <- parole_sub2 %>%
+  group_by(year, Title, pubtitle, pos) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sub4 <- parole_sub2 %>%
+  group_by(Title, year, pubtitle, word, pos) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sentiments <- get_sentiments()
+parole_adj_adv <- parole_sub4 %>%
+  left_join(parole_sentiments, by = "word")
+# anti_join(parole_sentiments) 
+
+parole_adj_adv[is.na(parole_adj_adv)] <- "neutral"
+
+
 parole_adult_final <- parole_adj_adv %>%
  mutate(dummy = ifelse(Title %in% parole_adult$Title, "adult", "no-adult")) %>%
  filter(pos == "Adjective" | pos == "Adverb") 
@@ -582,42 +624,7 @@ parole_violent_final %>%
 ##Part IV - word association and network of words
 5. Word Association
 ```{r bigram-frequencies}
-data <- parole_sub
 
-words <- unnest_tokens(data, word, text)
-words <- words %>% anti_join(stop_words)
-words <- unnest_tokens(data, word, text, token = "ngrams", n = 2)
-
-words
-
-words <- words %>%
-  separate(word, c('word1', 'word2'))
-
-clean_words <- words %>%
-  anti_join(stop_words, by= c("word1" = "word")) %>%
-  anti_join(stop_words, by= c("word2" = "word")) %>%
-  filter(word1 != "pages" & word2 != "pages")
-
-clean_words <- clean_words %>%
-  unite(phrase, c("word1", "word2"), sep = " ")
-
-bigram_counts <- clean_words %>%
-  group_by(phrase) %>%
-  summarise(count = n()) %>%
-  arrange(desc(count)) 
-
-clean_words <- bigram_counts %>%
- separate(phrase, c('word1', 'word2'))
-
-myvars <- c("word1", "word2","count")
-bigram_tograph <- clean_words[myvars]
-
-More_than_50 <- bigram_counts %>%
-  filter(count >= 50) %>%
-  arrange(-count) 
-ggplot(More_than_50, aes(x = count, y = phrase)) +
-  geom_col(fill = "#669933", colour = "black") + 
-  theme_minimal()
 ```
 
 ```{r test-bigram}
