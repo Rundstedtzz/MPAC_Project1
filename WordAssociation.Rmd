@@ -66,10 +66,12 @@ bigram_graph <- bigram_tograph %>%
 
 ```{r fig.width=7}
 More_than_50 <- bigram_counts %>%
-  filter(count >= 40) %>%
-  arrange(-count) 
+  filter(count >= 50) %>%
+  mutate(phrase = reorder(phrase, count)) 
 ggplot(More_than_50, aes(x = count, y = phrase)) +
-  geom_col(fill = "#669933", colour = "black")
+  geom_col(fill = "#669933", colour = "black") + 
+  ggtitle("Frequently appeared phrases (count >= 50)") +
+  theme_minimal()
 ```
 
 
