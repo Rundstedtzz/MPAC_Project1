@@ -1,17 +1,14 @@
 ---
-title: "MPAC Project 1 Technical Teport"
+title: "MPAC Project 1 Technical Report"
 author: "Crosby Byrnes, Ricky Sun, Suzy Ryckman, and Cheryl Jiao"
 date: "`r format(Sys.Date(), '%A %b %Y')`"
 output: 
   html_document:
     theme: cosmo
     highlight: haddock
-    number_sections: TRUE
     toc: TRUE
-    toc_collapsed: TRUE
     toc_float: TRUE
     toc_depth: 3
-
 ---
 
 ```{r setup, include=FALSE}
@@ -235,14 +232,14 @@ parole_abstract <- parole_sub4 %>%
 parole_abstract[is.na(parole_abstract)] <- "neutral"
 ```
 
-#Executive Summary
+## Executive Summary
 1.Start with the problem or need the document is solving.
 2.Outline the recommended solution.
 3.Explain the solution’s value.
 4.Wrap up with a conclusion about the importance of the work.
 
 
-#Introduction & Backgrounds
+## Introduction & Backgrounds
 In 1976, Maine was the first state to abolish parole during the antiwar movement. Several states followed Maine’s lead abolishing parole in an effort to move away from indeterminate sentences and increase predictability in punishment. At this time, the goal of incarceration shifted from rehabilitation to punishment as policymakers argued prisoners were not capable of recovery without recidivism. Although in the 1970s the U.S. incarceration rate was comparable to those in Europe and Canada, by the 2010s the United States housed 25% of the world’s prisons. Since the mid1970s, the incarceration rate in America has increased more than fourfold and the United States leads the world in prison population. More specifically, in Maine, the number of people locked up has increased 163% since 1983 and women in prison has increased by 794%. 
 
 In an effort to shift the focus back from punishment to rehabilitation in the judicial system, extensive literature has been published by researchers discussing cultural indicators for criminal behavior, such as the importance of child abuse, poverty, and early exposure to substance abuse, and the positive impact of individual-centered approaches to crime prevention that can be facilitated by community-based approaches. Thus, initiatives to help prevent criminal behavior and reduce the likelihood of recidivism from a community standpoint are essential to reducing the incarceration rate. 
@@ -252,17 +249,17 @@ Today, Maine is one of 16 states that doesn’t have parole. Recently however, a
 Our community partner for this project, the Maine Prisoner Advocacy Coalition, is planning to campaign on behalf of the reinstatement of parole and organize policy action to support the new parole initiative. In working with the MPAC, we evaluated local public perception toward parole by utilizing text analysis. By using data from three main newspapers, the Portland Press Herald, the Bangor Daily, and the Sun Journal, we aimed to cover the broad spectrum of news coverage across the entirety of Maine and conducted sentimental analysis using R to track perception around parole. We must preface that we are assuming these news sources are representative of public perception and that not only are the opinions of the local communities informed by these local papers but also representative of their opinions. We understand that not everyone in Maine reads the local paper or has the same opinion, but for the purposes of our research we are making generalizations about the local population. Nevertheless, through this process of opinion mining, we categorized language into positive, negative, or neutral sentiments and generated a series of visualizations to highlight trends. Our goal is that our research identifies trends that will help the MPAC make informed decisions when organizing campaigns so they can maximize saliency to the public. 
 
 
-#Data
+## Data
 The data set was given to us in the form of a ProQuest document. ProQuest is an academic database which is considered as the broadest single research resource in the world. Using help from a researcher at Bates and an advanced search option, we were able to trim down our newspaper search rapidly using filters and limiting the topics by searching “parole” in abstract or “parole” and “probation” in the title for example. Our filtered searches helped us end with 738 newspaper articles focusing on three main Maine newspapers: The Bangor Daily News, The Sun Journal, Portland Press Herald. The dimensions for our data are specific to the question of parole in Maine in between 2000 and the present where we focused on the sentiment ( negative/ positive/ neutral). 
 
-#Methods
+## Methods
 Once we retrieved the data, we started cleaning it using multiple methods. We needed to use stopwords (which removes small words such as “a”, “the”, “at”), unnesting (Nesting creates a list-column of data frames; unnesting flattens it back out into regular columns, anti-join (anti-joining the stopwords and the data), part-of-speech(). Such tools gave us more room to analyze sentiments around parole and how the newspapers expressed themselves concerning this topic. As a group we decided to focus on data going from the present day all the way back to 2000. While cleaning our data, separating words was an important part of our process when looking at whether a word is a noun, adjective or an adverb.
 Once the data had been fully cleaned, we then started our Text Analysis using R Studio as well as R Markdown and R Shiny. After coding, we were able to create wordclouds looking at word frequencies and how much value a word has depending on its color. Secondly, we made bar plots looking at negative adverbs/ adjectives in Maine news concerning parole which gave us some interesting feedback. Our analysis became more detailed once we met with Amy Douglass (Psychology Professor at Bates College)  as well as Jan Collins who works for the Maine Prison Advocacy Coalition Group. The situation on parole in Maine was eventually more clear to us which helped us narrow down our focus and what visualisations we felt were vital to our research. The next step in our analysis was exploring sentiments through adults versus juveniles in Maine. We have finally created word associations which focuses on relations between words and the amout of times they are linked. 
 
 
-##Part I - Preliminary analysis
+### Part I - Preliminary analysis
 
-###word-cloud
+#### word-cloud
 ```{r word-cloud-negative}
 parole_sub_x <- parole_sub2 %>%
   group_by(word, pos) %>%
@@ -311,12 +308,12 @@ wordcloud(words = parole_abstract_wordcloud$word, freq = parole_abstract_wordclo
           colors=brewer.pal(8, "Dark2"))
 ```
 
-##Part II - Sentiment analysis
+### Part II - Sentiment analysis
 
-###R-Shiny Bar Plot
+#### R-Shiny Bar Plot
 https://3fjgps-qifeng-sun.shinyapps.io/Interactive_bar_parole/
 
-###Stacked Line Plot
+#### Stacked Line Plot
 ```{r general, fig.align = 'left'}
 variation_data2 <- parole_adj_adv %>%
   ungroup() %>%
@@ -460,7 +457,7 @@ parole_sub_stacked2 %>%
 #p
 ```
 
-##Part III - Psychology Research
+### Part III - Psychology Research
 
 ```{r create-filters}
 parole_adult <- parole_text_title %>%
@@ -508,8 +505,8 @@ parole_adj_adv[is.na(parole_adj_adv)] <- "neutral"
 
 ```
 
-###violence
-```{r violence-negative}
+#### violence
+```{r violence-negative, fig.align = 'left'}
 parole_violent_final <- parole_adj_adv %>%
   mutate(dummy = ifelse(Title %in% parole_violent$Title, "violent", "no-violent")) %>%
   filter(pos == "Adjective" | pos == "Adverb")
@@ -531,7 +528,7 @@ parole_violent_final %>%
   theme_minimal()
 ```
 
-```{r violence-positive}
+```{r violence-positive, fig.align = 'left'}
 parole_violent_final <- parole_adj_adv %>%
   mutate(dummy = ifelse(Title %in% parole_violent$Title, "violent", "no-violent")) %>%
   filter(pos == "Adjective" | pos == "Adverb")
@@ -553,8 +550,8 @@ parole_violent_final %>%
   theme_minimal()
 ```
 
-###juvenile
-```{r juvenile-negative}
+#### juvenile
+```{r juvenile-negative, fig.align = 'left'}
 parole_juvenile_final <- parole_adj_adv %>%
   mutate(dummy = ifelse(Title %in% parole_juvenile$Title, "juvenile/teenager", "no-juvenile/teenager")) %>%
   filter(pos == "Adjective" | pos == "Adverb") 
@@ -576,7 +573,7 @@ parole_juvenile_final %>%
   theme_minimal()
 ```
 
-```{r juvenile-positive}
+```{r juvenile-positive, fig.align = 'left'}
 parole_juvenile_final <- parole_adj_adv %>%
   mutate(dummy = ifelse(Title %in% parole_juvenile$Title, "juvenile/teenager", "no-juvenile/teenager")) %>%
   filter(pos == "Adjective" | pos == "Adverb") 
@@ -598,8 +595,8 @@ parole_juvenile_final %>%
   theme_minimal()
 ```
 
-###adult
-```{r adult-negative}
+#### adult
+```{r adult-negative, fig.align = 'left'}
 parole_adult_final <- parole_adj_adv %>%
  mutate(dummy = ifelse(Title %in% parole_adult$Title, "adult", "no-adult")) %>%
  filter(pos == "Adjective" | pos == "Adverb") 
@@ -621,7 +618,7 @@ parole_adult_final %>%
   theme_minimal()
 ```
 
-```{r adult-positive}
+```{r adult-positive, fig.align = 'left'}
 parole_adult_final <- parole_adj_adv %>%
  mutate(dummy = ifelse(Title %in% parole_adult$Title, "adult", "no-adult")) %>%
  filter(pos == "Adjective" | pos == "Adverb") 
@@ -644,15 +641,15 @@ parole_adult_final %>%
 ```
 
 
-##Part IV - word association and network of words
+### Part IV - word association and network of words
 
-###bigram frequencies barplot
+#### bigram frequencies barplot
 ```{r bigram-frequencies}
 
 ```
 
 
-###word Association
+#### word Association
 ```{r word-association}
 
 ```
@@ -660,13 +657,13 @@ parole_adult_final %>%
 
 
 
-#Results and Discussion
+## Results and Discussion
 
-#Limitations
 
-#Next steps
+## Limitations
 
-#Future Research
+
+## Next steps & Future Research
 
 
 
