@@ -43,8 +43,8 @@ library(hrbrthemes)
 devtools::install_github("ropensci/plotly")
 library(plotly)
 
-#library(igraph)
-#library(ggraph)
+library(igraph)
+library(ggraph)
 library(widyr)
 library(tidyr)
 ```
@@ -233,10 +233,25 @@ parole_abstract[is.na(parole_abstract)] <- "neutral"
 ```
 
 ## Executive Summary
-1.Start with the problem or need the document is solving.
-2.Outline the recommended solution.
-3.Explain the solution’s value.
-4.Wrap up with a conclusion about the importance of the work.
+### Overview
+The Maine Prisoner Advocacy Coalition is planning to campaign on behalf of the reinstatement of parole and organize policy action to support the new parole initiative. In working with the MPAC, we used data from three Maine newspapers to evaluate local public perception toward parole by utilizing text analysis.
+
+### The Problem
+The bill to reinstate parole in Maine has yet to be signed by the governor. Therefore, the MPAC is planning to campaign on behalf of the bill to increase resident support for the initiative and to assist legislators in drafting an amended bill that will pass once the investigator has been conducted. 
+	
+### Our Research
+Our research of opinion mining categorizes language into positive, negative, or neutral sentiments and generates a series of visualizations to highlight trends. These trends identified by our sentimental analysis will help the MPAC make informed decisions when organizing campaigns so they can maximize saliency to the public. 
+
+
+### Next Steps
+For further research on the public perspective of parole and probation using text analysis, we have the following suggestions. 
+- Further analyses can implement stemming to minimize repeatedly counting words of the same stem
+- Further application of machine learning techniques to text analysis
+- Refinement of word association analysis
+
+### Summary
+There are several limitations to our study, primarily that we assume sentiments articulated in the newspaper articles are representative of general public opinion in Maine. However, we believe that our results can give context to some of the public’s reactions to issues around parole. This report can be vital to campaigning strategy and is a great foundation for future research.
+
 
 
 ## Introduction & Backgrounds
@@ -248,7 +263,6 @@ Today, Maine is one of 16 states that doesn’t have parole. Recently however, a
 
 Our community partner for this project, the Maine Prisoner Advocacy Coalition, is planning to campaign on behalf of the reinstatement of parole and organize policy action to support the new parole initiative. In working with the MPAC, we evaluated local public perception toward parole by utilizing text analysis. By using data from three main newspapers, the Portland Press Herald, the Bangor Daily, and the Sun Journal, we aimed to cover the broad spectrum of news coverage across the entirety of Maine and conducted sentimental analysis using R to track perception around parole. We must preface that we are assuming these news sources are representative of public perception and that not only are the opinions of the local communities informed by these local papers but also representative of their opinions. We understand that not everyone in Maine reads the local paper or has the same opinion, but for the purposes of our research we are making generalizations about the local population. Nevertheless, through this process of opinion mining, we categorized language into positive, negative, or neutral sentiments and generated a series of visualizations to highlight trends. Our goal is that our research identifies trends that will help the MPAC make informed decisions when organizing campaigns so they can maximize saliency to the public. 
 
-
 ## Data
 The data set was given to us in the form of a ProQuest document. ProQuest is an academic database which is considered as the broadest single research resource in the world. Using help from a researcher at Bates and an advanced search option, we were able to trim down our newspaper search rapidly using filters and limiting the topics by searching “parole” in abstract or “parole” and “probation” in the title for example. Our filtered searches helped us end with 738 newspaper articles focusing on three main Maine newspapers: The Bangor Daily News, The Sun Journal, Portland Press Herald. The dimensions for our data are specific to the question of parole in Maine in between 2000 and the present where we focused on the sentiment ( negative/ positive/ neutral). 
 
@@ -256,10 +270,15 @@ The data set was given to us in the form of a ProQuest document. ProQuest is an 
 Once we retrieved the data, we started cleaning it using multiple methods. We needed to use stopwords (which removes small words such as “a”, “the”, “at”), unnesting (Nesting creates a list-column of data frames; unnesting flattens it back out into regular columns, anti-join (anti-joining the stopwords and the data), part-of-speech(). Such tools gave us more room to analyze sentiments around parole and how the newspapers expressed themselves concerning this topic. As a group we decided to focus on data going from the present day all the way back to 2000. While cleaning our data, separating words was an important part of our process when looking at whether a word is a noun, adjective or an adverb.
 Once the data had been fully cleaned, we then started our Text Analysis using R Studio as well as R Markdown and R Shiny. After coding, we were able to create wordclouds looking at word frequencies and how much value a word has depending on its color. Secondly, we made bar plots looking at negative adverbs/ adjectives in Maine news concerning parole which gave us some interesting feedback. Our analysis became more detailed once we met with Amy Douglass (Psychology Professor at Bates College)  as well as Jan Collins who works for the Maine Prison Advocacy Coalition Group. The situation on parole in Maine was eventually more clear to us which helped us narrow down our focus and what visualisations we felt were vital to our research. The next step in our analysis was exploring sentiments through adults versus juveniles in Maine. We have finally created word associations which focuses on relations between words and the amout of times they are linked. 
 
+## Results  
 
 ### Part I - Preliminary analysis
 
-#### word-cloud
+#### Word-cloud for most frequent words {.tabset}
+
+After we cleaned out data, we first took a look at the frequencies of words, in particular, most frequent negative and positive adjectives and adverbs. From the word clouds, we can see that for negative adjectives and adverbs, “guilty”, “gross”, “killing”, and “unlawful” are the most frequently appeared adjectives and adverbs, while for positive ones, they are “superior”, “positive”, “ significant”, “fair”, “free” and so on. We can get an overview idea of how the newspaper articles depict parole from positive or negative perspectives in Maine. 
+
+##### Most frequent negative words
 ```{r word-cloud-negative}
 parole_sub_x <- parole_sub2 %>%
   group_by(word, pos) %>%
@@ -284,6 +303,7 @@ wordcloud(words = parole_abstract_wordcloud$word, freq = parole_abstract_wordclo
           colors=brewer.pal(8, "Dark2"))
 ```
 
+##### Most frequent negative words
 ```{r word-cloud-positive}
 parole_sub_x <- parole_sub2 %>%
   group_by(word, pos) %>%
@@ -310,10 +330,15 @@ wordcloud(words = parole_abstract_wordcloud$word, freq = parole_abstract_wordclo
 
 ### Part II - Sentiment analysis
 
-#### R-Shiny Bar Plot
+#### R-Shiny bar plot for most frequent words
+The word clouds could be limited and we cannot see the actual counts of words. In order to make viewing most frequent words more convenient, we created a R-shiny bar plot, which can be varied by different criteria, such as sentiments (positive, negative, neutral), part of speech (noun, adjective, adverb), year (from 2000 to 2022), how many top words to show, and press (Sun Journal, Bangor Daily News, Portland Press Herald). Here is the link to the published R-shiny app: 
 https://3fjgps-qifeng-sun.shinyapps.io/Interactive_bar_parole/
 
-#### Stacked Line Plot
+<br/>
+
+#### Sentiments over year
+
+Next, we move on to our sentiment analysis to see what sentiments are behind those most frequent words. In general, parole is talked about in a cyclical pattern, which could be in line with some national level parole campaigns or parole reinstatement discussion in other states. In general, we can see that the attitudes towards parole in Maine media from the three newspapers we select, is more negative than positive. 
 ```{r general, fig.align = 'left'}
 variation_data2 <- parole_adj_adv %>%
   ungroup() %>%
@@ -343,6 +368,12 @@ plot2
 
 ```
 
+#### Sentiments over year {.tabset}
+By taking a further step, we also took a look at the sentiments by the press over the past twenty years. For the three newspapers we selected, we know that Bangor Daily news could be a more conservative newspaper, since it is from the more northern part of Maine, while Portland Press Herald and Sun Journal could be more liberal. We can see Bangor Daily News almost stopped to use neither negative nor positive to describe parole after 2020, this could be because that more conservative newspaper may not be as interested in reinstating parole so they may not talk about or make judgements about parole that often.
+
+<br/>
+
+##### Negative adjectives and adverbs by press (count)
 ```{r general-negative-1, fig.align = 'left'}
 parole_sub_stacked1 <- parole_text %>%
   filter(pos == "Adjective" | pos == "Adverb") %>%
@@ -356,38 +387,13 @@ parole_sub_stacked1 %>%
   ggplot(aes(x=year, y=count, fill=pubtitle)) +
   geom_area(alpha = 0.6) +
   scale_fill_viridis(discrete = TRUE) +
-  ggtitle("frequency of negative adjectives or adverbs in Maine news around parole by press") +
-  theme_ipsum() +
-  theme_minimal()
-```
-
-```{r general-negative-2, fig.align = 'left'}
-parole_sub_stackedx <- parole_text %>%
-  filter(pos == "Adjective" | pos == "Adverb") %>%
-  group_by(year, pubtitle, sentiment) %>%
-  summarise(count = n())%>%
-  arrange(desc(count)) %>%
-  na.omit()
-
-parole_sub_wide <- parole_sub_stackedx %>%
-  pivot_wider(names_from = sentiment, values_from = count)
-
-parole_sub_stacked2 <- parole_sub_wide %>%
-  mutate(percentage_negative = negative/(negative + positive + neutral)) %>%
-  group_by(year, pubtitle) %>%
-  arrange(desc(percentage_negative)) %>%
-  na.omit()
-
-parole_sub_stacked2 %>%
-  ggplot(aes(x=year, y=percentage_negative, fill=pubtitle)) +
-  geom_area(alpha = 0.6) +
-  scale_fill_viridis(discrete = TRUE) +
-  ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+  ggtitle("frequency of negative adjectives or adverbs in Maine news around parole") +
   labs(subtitle = "by press") +
   theme_ipsum() +
   theme_minimal()
 ```
 
+##### Positive adjectives and adverbs by press (count)
 ```{r general-positive-1, fig.align = 'left'}
 parole_sub_stacked1 <- parole_text %>%
   filter(pos == "Adjective" | pos == "Adverb") %>%
@@ -402,9 +408,18 @@ parole_sub_stacked1 %>%
   geom_area(alpha = 0.6) +
   scale_fill_viridis(discrete = TRUE) +
   ggtitle("frequency of positive adjectives or adverbs in Maine news around parole by press") +
+  labs(subtitle = "by press") +
   theme_ipsum() +
   theme_minimal()
 ```
+
+#### Sentiments over year by press {.tabset}
+
+Since each newspaper article could have a wide range of length, it is more accurate to see the average percentage of negative adjectives and adverbs out of all adjectives and adverbs. The new graph does not seem to undermine our previous conclusions. 
+
+<br/>
+
+##### Negative adjectives and adverbs by press (ratio)
 
 ```{r general-positive-2, fig.align = 'left'}
 parole_sub_stackedx <- parole_text %>%
@@ -433,28 +448,33 @@ parole_sub_stacked2 %>%
   theme_minimal()
 ```
 
-```{r specific-words}
-#parole_adj_adv <- subset(parole_adj_adv, select = -pubtitle)
-#parole_adj_adv <- subset(parole_adj_adv, select = -pos)
+##### Positive adjectives and adverbs by press (ratio)
 
-#variation_data <- parole_adj_adv %>%
-# ungroup() %>%
-# filter(word %in% c("violent", "dangerous", "recidivism")) %>%
-# group_by(word, year) %>%
-# summarise(count_total = sum(count)) %>%
-# arrange(year)
+```{r general-negative-2, fig.align = 'left'}
+parole_sub_stackedx <- parole_text %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  group_by(year, pubtitle, sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
 
-#p <- variation_data %>% 
-# ggplot(aes(x=year, y=count_total, fill=word, text=word)) +
-#   geom_area(alpha = 0.6) +
-#   scale_fill_viridis(discrete = TRUE) +
-#   ggtitle("Popularity of Certain Words in the past 20 years") +
-#   theme_ipsum() +
-#   theme_minimal()
+parole_sub_wide <- parole_sub_stackedx %>%
+  pivot_wider(names_from = sentiment, values_from = count)
 
-# Turn it interactive
-#p <- ggplotly(p, tooltip="text")
-#p
+parole_sub_stacked2 <- parole_sub_wide %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) %>%
+  group_by(year, pubtitle) %>%
+  arrange(desc(percentage_negative)) %>%
+  na.omit()
+
+parole_sub_stacked2 %>%
+  ggplot(aes(x=year, y=percentage_negative, fill=pubtitle)) +
+  geom_area(alpha = 0.6) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+  labs(subtitle = "by press") +
+  theme_ipsum() +
+  theme_minimal()
 ```
 
 ### Part III - Psychology Research
@@ -505,14 +525,18 @@ parole_adj_adv[is.na(parole_adj_adv)] <- "neutral"
 
 ```
 
-#### violence
+#### Violence {.tabset}
+In this next section, we replicate some of the analysis that Professor Amy Douglass and her class have done. Professor Amy Douglass is a Psychology Professor that specialize in social psychology and law, such as eyewitness identification and death penalty. In this first part, we found that newspaper articles that involve violent/violence could be associated with more frequent negative sentiments as compared to articles that do not have violent/violence mentioned. As shown in the graphs, the ratio of negative adjectives/adverbs for articles that involve “violence/violent” is higher than those without. The ratio of positive adjectives/adverbs for articles that involve “teenager/juvenile” is lower than those without.
+
+
+##### Negative sentiments towards "violence/violent"
 ```{r violence-negative, fig.align = 'left'}
 parole_violent_final <- parole_adj_adv %>%
-  mutate(dummy = ifelse(Title %in% parole_violent$Title, "violent", "no-violent")) %>%
+  mutate(keywords = ifelse(Title %in% parole_violent$Title, "violent", "no-violent")) %>%
   filter(pos == "Adjective" | pos == "Adverb")
 
 parole_violent_final <- parole_violent_final%>%
-  group_by(sentiment, dummy) %>%
+  group_by(sentiment, keywords) %>%
   summarise(count = n())%>%
   arrange(desc(count)) %>%
   na.omit() %>%
@@ -520,21 +544,22 @@ parole_violent_final <- parole_violent_final%>%
   mutate(percentage_negative = negative/(negative + positive + neutral)) 
 
 parole_violent_final %>%
-  ggplot(aes(x=dummy, y=percentage_negative, fill = dummy)) +
+  ggplot(aes(x=keywords, y=percentage_negative, fill = keywords)) +
   geom_bar(stat="identity", position=position_dodge()) +
   scale_fill_viridis(discrete = TRUE) +
   ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
-  labs(x = "whether the news contain 'violent/violence'") +
+  labs(x = "whether the news contain 'violent/violence'", y = "ratio") +
   theme_minimal()
 ```
 
+##### Positive sentiments towards "violence/violent"
 ```{r violence-positive, fig.align = 'left'}
 parole_violent_final <- parole_adj_adv %>%
-  mutate(dummy = ifelse(Title %in% parole_violent$Title, "violent", "no-violent")) %>%
+  mutate(keywords = ifelse(Title %in% parole_violent$Title, "violent", "no-violent")) %>%
   filter(pos == "Adjective" | pos == "Adverb")
 
 parole_violent_final <- parole_violent_final%>%
-  group_by(sentiment, dummy) %>%
+  group_by(sentiment, keywords) %>%
   summarise(count = n())%>%
   arrange(desc(count)) %>%
   na.omit() %>%
@@ -542,15 +567,19 @@ parole_violent_final <- parole_violent_final%>%
   mutate(percentage_positive = positive/(negative + positive + neutral)) 
 
 parole_violent_final %>%
-  ggplot(aes(x=dummy, y=percentage_positive, fill = dummy)) +
+  ggplot(aes(x=keywords, y=percentage_positive, fill = keywords)) +
   geom_bar(stat="identity", position=position_dodge()) +
   scale_fill_viridis(discrete = TRUE) +
   ggtitle("ratio of positive adjectives/adverbs occurance in Maine news around parole") +
-  labs(x = "whether the news contain 'violent/violence'") +
+  labs(x = "whether the news contain 'violent/violence'", y = "ratio") +
   theme_minimal()
 ```
 
-#### juvenile
+#### juvenile {.tabset}
+
+We also found that newspaper articles that involve juvenile or teenager could be associated with less frequent negative sentiments as compared to articles that do not have juvenile and teenager mentioned. As shown in the graphs, the ratio of negative adjectives/adverbs for articles that involve “teenager/juvenile” is lower than those without. The ratio of positive adjectives/adverbs for articles that involve “teenager/juvenile” is higher than those without.
+
+##### Negative sentiments towards "Juvenile/teenager"
 ```{r juvenile-negative, fig.align = 'left'}
 parole_juvenile_final <- parole_adj_adv %>%
   mutate(dummy = ifelse(Title %in% parole_juvenile$Title, "juvenile/teenager", "no-juvenile/teenager")) %>%
@@ -573,6 +602,7 @@ parole_juvenile_final %>%
   theme_minimal()
 ```
 
+##### Positive sentiments towards "violence/teenager"
 ```{r juvenile-positive, fig.align = 'left'}
 parole_juvenile_final <- parole_adj_adv %>%
   mutate(dummy = ifelse(Title %in% parole_juvenile$Title, "juvenile/teenager", "no-juvenile/teenager")) %>%
@@ -595,7 +625,11 @@ parole_juvenile_final %>%
   theme_minimal()
 ```
 
-#### adult
+#### adult {.tabset}
+
+For newspaper articles that involve adult, we got an ambiguous result: the ratio of negative adjectives/adverbs for articles that involve “adult” is higher than those without, but the ratio of positive adjectives/adverbs for articles that involve “adult” is also higher than those without. This could mean that parole for adult is more debatable. 
+
+##### Negative sentiments towards "adult"
 ```{r adult-negative, fig.align = 'left'}
 parole_adult_final <- parole_adj_adv %>%
  mutate(dummy = ifelse(Title %in% parole_adult$Title, "adult", "no-adult")) %>%
@@ -618,6 +652,7 @@ parole_adult_final %>%
   theme_minimal()
 ```
 
+##### Positive sentiments towards "adult"
 ```{r adult-positive, fig.align = 'left'}
 parole_adult_final <- parole_adj_adv %>%
  mutate(dummy = ifelse(Title %in% parole_adult$Title, "adult", "no-adult")) %>%
@@ -643,27 +678,105 @@ parole_adult_final %>%
 
 ### Part IV - word association and network of words
 
-#### bigram frequencies barplot
-```{r bigram-frequencies}
+We used word association analysis and the network of words to find the frequently appeared phrases and pairs of words. Above are two outputs generated from our codes. As indicated by the phrases “substance abuse”, “license suspended”, “domestic violence”, and “sexual assault”, these types of crimes are often discussed in news articles about parole. County names, including androscoggin county, cumberland county, and oxford county are often mentioned. “Probation” in the news is often associated with “violation”, indicating a generally negative impression towards probation. 
 
+#### Bigram frequencies barplot for most frequent bigram phrases
+```{r bigram-frequencies, fig.width=7}
+data <- parole_sub
+
+words <- unnest_tokens(data, word, text)
+words <- words %>% anti_join(stop_words)
+words <- unnest_tokens(data, word, text, token = "ngrams", n = 2)
+
+words <- words %>%
+  separate(word, c('word1', 'word2'))
+
+clean_words <- words %>%
+  anti_join(stop_words, by= c("word1" = "word")) %>%
+  anti_join(stop_words, by= c("word2" = "word")) %>%
+  filter(word1 != "pages" & word2 != "pages")
+
+clean_words <- clean_words %>%
+  unite(phrase, c("word1", "word2"), sep = " ")
+
+bigram_counts <- clean_words %>%
+  group_by(phrase) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) 
+
+clean_words <- bigram_counts %>%
+ separate(phrase, c('word1', 'word2'))
+
+myvars <- c("word1", "word2","count")
+bigram_tograph <- clean_words[myvars]
+
+More_than_50 <- bigram_counts %>%
+  filter(count >= 50) %>%
+  mutate(phrase = reorder(phrase, count)) 
+ggplot(More_than_50, aes(x = count, y = phrase)) +
+  geom_col(fill = "#669933", colour = "black") + 
+  ggtitle("Frequently appeared phrases (count >= 50)") +
+  theme_minimal()
 ```
 
 
-#### word Association
-```{r word-association}
+#### Word Association
+```{r word-association, fig.width= 9, fig.height= 8}
+words_network <- clean_words %>%
+  filter(count >= 25) 
 
+set.seed(2000)
+
+words_network %>%
+  ggraph(layout = "fr") +
+  geom_edge_link(aes(edge_alpha = count, edge_width = count)) +
+  geom_node_point(color = "mediumpurple", size = 3) +
+  geom_node_text(aes(label = name), vjust = 1.8) +
+  ggtitle(expression(paste("Network of Words: Pairs of words that appeared together more than 25 times"))) +
+  theme_void()
 ```
 
 
+## Discussion & Limitations
+There are a few limitations of our research that may affect the accuracy or comprehensiveness of our results. 
+
+First of all, our primary source of data is news from Maine local newspapers from 2000 to the present. Although previous research suggested that news and media coverage are capable of influencing as well as representing public opinions, such power is limited to certain circumstances and may not be entirely accurate (McGregor, 2019; Mutz et al., 1997). Our research question is about public perceptions towards parole, so sentiment is an important aspect of our analyses. However, news may not include as much sentiments as facts due to its nature. Therefore, using merely news to analyze the sentiments and perspectives of Maine residents may not be sufficient. Moreover, how newspapers cover news may be largely affected by other factors, such as the government pressure, political orientation of the press, or profit concerns (Vanderwicken, 2014). Therefore, their coverages may not truly reflect public opinions or the truth of the news. 
+
+Second, processing text data using our code may not be comprehensive and accurate enough. We were able to filter out most of the irrelevant information and keep as much related data as possible using R. However, due to the limit of our knowledge of R and the time limit we have, we were unable to filter out all irrelevant information without missing important data. For example, “page 30” is irrelevant, but filtering it out will also cause the loss of important information such as “30 days license suspension”. In order to process such a large amount of data, we have set certain criteria to process and clean up the data, thus it is possible that important information is filtered out because it does not qualify for such criteria. What’s more, words of the same stem were not combined together, such as violate, violation, and violation. Separating these words may affect the accuracy of our results.
+
+## Next steps 
+For further research on the public perspective of parole and probation using text analysis, we have the following suggestions. 
+
+First, further analyses can implement stemming to minimize repeatedly counting words of the same stem. Stemming would be able to combine these words, thus providing us with a more accurate count of frequency. 
+
+Second, researchers could apply more machine learning techniques. We were able to apply the ideas of machine learning for text analysis, such as sentiment analysis and spam filtering, using simplified methods. Due to the time limit and other restrictions, we were unable to elaborate more and build a more complete machine learning model for analyses. Future studies may continue working on implementing machine learning into text analysis for study of public opinions on parole. 
+
+Also, Since many of our graphs are categorized and filtered by similar criteria, it would be efficient to make many of our visualizations into R-shiny app, so that the visualizations can be more interactive, flexible and comprehensive.
+
+Furthermore, a more generalized word association may be applied. Our word association analysis is limited to words that are directly next to each other in the text. For example, only “license suspension” is included and the words “license” and “suspension” are marked as associated, but “license got suspended” is not included where “license” and “suspension” here are not considered as associated. If further study can use machine learning models to expand the range of association to the whole sentence, therefore able to analyze words that are related but are not next to each other in the texts, there might be more general results found by word association analysis. 
 
 
-## Results and Discussion
+## Future Research
+Future study may look into whether parole is advocated in Maine or other states and whether the advocacy is related to change of public opinions. Opinions from different demographics or backgrounds may also be discussed with data that include demographic information, such as age or racial differences in supportiveness of parole. Researchers can also examine people’s supportiveness of parole from the four perspectives that were proposed by PSYC 218 class: Cost of incarceration, whether victims support parole, humane treatment or not, and whether parole increases violent/non-violent crime. From our conversation with our MPAC partner, we also propose that psychology research may discuss whether or not people support parole and in different situations and scenarios, such as in a scenario where people themselves broke the law, can be as minor as speeding, and is facing the jail, verses where people are victims or survivors of crimes themselves. 
 
+## References
 
-## Limitations
+[1] Benson, E., 2003. Rehabilitate or punish?. [online] https://www.apa.org. Available at: <https://www.apa.org/monitor/julaug03/rehab> [Accessed 25 May 2022].
 
+[2] Letter to Maine Prisoner Advocacy Coalition (MPAC); Re: Parole survey data analysis; From: Professor Amy Douglass and students in Psychology 218 (Statistics) 
 
-## Next steps & Future Research
+[3] McGregor, S. C. (2019). Social media as public opinion: How journalists use social media to represent public opinion. Journalism, 20(8), 1070–1086. https://doi.org/10.1177/1464884919845458
+
+[4] Mutz, D. C., & Soss, J. (1997). Reading Public Opinion: The Influence of News Coverage on Perceptions of Public Sentiment. The Public Opinion Quarterly, 61(3), 431–451. http://www.jstor.org/stable/2749580
+
+[5] Pfaff, John F. “The Complicated Economics of Prison Reform.” Michigan Law Review 114, no. 6 (2016): 951–981. https://search.informit.org/doi/10.3316/agispt.20190913016882.
+
+[6] Vanderwicken, Peter. “Why the News Is Not the Truth.” Harvard Business Review, 1 Aug. 2014, https://hbr.org/1995/05/why-the-news-is-not-the-truth.   
+
+[7] Watts, A., 2018. In Depth: Sentencing Guidelines and Discretionary Parole Release. [online] Robina Institute Sentencing Guidelines Resource Center. Available at: <https://sentencing.umn.edu/content/depth-sentencing-guidelines-and-discretionary-parole-release> [Accessed 25 May 2022]. 
+
+[8] Zhang, Z. (2018). Text Mining for Social and Behavioral Research Using R: A Case Study on Teaching Evaluation. Retrievable from https://books.psychstat.org/textmining
+
 
 
 
