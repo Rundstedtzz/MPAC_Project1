@@ -69,9 +69,13 @@ More_than_50 <- bigram_counts %>%
   filter(count >= 50) %>%
   mutate(phrase = reorder(phrase, count)) 
 ggplot(More_than_50, aes(x = count, y = phrase)) +
+<<<<<<< HEAD
   geom_col(fill = "#669933", colour = "black") + 
   ggtitle("Frequently appeared phrases (count >= 50)") +
   theme_minimal()
+=======
+  geom_col(fill = "#669933", colour = "black") 
+>>>>>>> 9c8663c73251fda3d52f39219eb84d65953e9f2d
 ```
 
 

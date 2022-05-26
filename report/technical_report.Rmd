@@ -1,0 +1,674 @@
+---
+title: "MPAC Project 1 Technical Report"
+author: "Crosby Byrnes, Ricky Sun, Suzy Ryckman, and Cheryl Jiao"
+date: "`r format(Sys.Date(), '%A %b %Y')`"
+output: 
+  html_document:
+    theme: cosmo
+    highlight: haddock
+    toc: TRUE
+    toc_float: TRUE
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r load-packages, echo = FALSE, message = FALSE, warning = FALSE}
+library(readr)
+library(tidytext)
+library(stringr)
+library(tidyverse) 
+library(skimr)
+library(robotstxt)
+library(rvest)
+library(SnowballC)
+library(dplyr)
+library(janitor)
+library(janeaustenr)
+library(wordcloud)
+library(tm)
+library(here)
+library(RColorBrewer)
+
+remotes::install_github("wilkelab/ggridges")
+library(ggridges)
+library(forcats)
+
+library(ggplot2)
+library(dplyr)
+library(viridis)
+library(hrbrthemes)
+devtools::install_github("ropensci/plotly")
+library(plotly)
+
+#library(igraph)
+#library(ggraph)
+library(widyr)
+library(tidyr)
+```
+
+```{r load-data}
+parole_data <- read_csv("https://raw.githubusercontent.com/Rundstedtzz/MPAC_Project1/main/data/proquest_1.csv")
+
+parole_text_1 <- read.delim("https://raw.githubusercontent.com/Rundstedtzz/MPAC_Project1/main/data/proquest_2.txt", header = TRUE)
+colnames(parole_text_1)[1] <- "id"
+```
+
+```{r set-up-pattern}
+pattern <- paste(parole_data$StoreId, collapse = "|") # all possible patterns
+
+parole_text_1$StoreId <- as.numeric(str_extract(string = parole_text_1$id, pattern = pattern))
+
+parole_text_article <- parole_text_1 %>% fill(StoreId)
+
+parole_text_article_df <- left_join(parole_text_article, 
+                           parole_data,
+                           by = "StoreId")
+
+colnames(parole_text_article_df)[1] <- "text"
+```
+
+```{r delete-unnecessary-texts}
+parole_sub <- parole_text_article_df[-str_which(parole_text_article_df$text, pattern = "ProQuest document ID:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Publication info:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "https:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Author:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Abstract:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Subject:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Location:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Company / organization:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Title:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Publication title:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Publication year:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Publication date:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Publication subject:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "First page:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Publisher:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Place of publication:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Country of publication:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Language of publication:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "ISSN:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Source type:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Document type:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Copyright:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Last updated:"),]
+parole_sub <- parole_sub[-str_which(parole_sub$text, pattern = "Database:"),]
+parole_sub <- parole_sub[-(str_which(parole_sub$text, pattern = "Full text:")-1),]
+prepare_sub <- str_which(parole_sub$text, pattern = "Full text:")-1
+parole_sub <- parole_sub[-prepare_sub[-1],]
+```
+
+```{r attaching-part-of-speech}
+parole_sub2 <- parole_sub %>%
+  select(text, year, pubtitle) %>%
+  unnest_tokens(output = word, input = text) %>%
+  anti_join(stop_words) %>%
+  mutate(word = tolower(word)) 
+
+parts_of_speech_ad <- parts_of_speech %>%
+  filter(pos %in% c("Adjective", "Adverb", "Noun", "Verb"))
+
+parole_sub2 <- parole_sub2 %>%
+  left_join(parts_of_speech_ad, by = "word")
+```
+
+```{r attaching-sentiments-text}
+parole_sentiments <- get_sentiments()
+parole_final <- parole_sub2 %>%
+  left_join(parole_sentiments, by = "word")
+# anti_join(parole_sentiments) 
+
+parole_final[is.na(parole_final)] <- "neutral"
+
+#write_csv(parole_final, "parole_final.csv")
+
+parole_sub4 <- parole_sub2 %>%
+  group_by(year, pubtitle, word, pos) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sentiments <- get_sentiments()
+parole_text <- parole_sub4 %>%
+  left_join(parole_sentiments, by = "word")
+# anti_join(parole_sentiments) 
+
+parole_text[is.na(parole_text)] <- "neutral"
+
+parole_sentiments <- get_sentiments()
+parole_adj_adv <- parole_sub4 %>%
+  left_join(parole_sentiments, by = "word")
+# anti_join(parole_sentiments) 
+
+parole_adj_adv[is.na(parole_adj_adv)] <- "neutral"
+```
+
+```{r attaching-sentiments-text-with-title}
+parole_sentiments <- get_sentiments()
+
+parole_sub2 <- parole_sub %>%
+  select(text, Title, year, pubtitle) %>%
+  unnest_tokens(output = word, input = text) %>%
+  anti_join(stop_words) %>%
+  mutate(word = tolower(word)) 
+
+parts_of_speech_ad <- parts_of_speech %>%
+  filter(pos %in% c("Adjective", "Adverb", "Noun", "Verb"))
+
+parole_sub2 <- parole_sub2 %>%
+  left_join(parts_of_speech_ad, by = "word")
+
+parole_sub4 <- parole_sub2 %>%
+  group_by(Title, year, pubtitle, word, pos) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sentiments <- get_sentiments()
+parole_text_title <- parole_sub4 %>%
+  left_join(parole_sentiments, by = "word")
+# anti_join(parole_sentiments) 
+
+parole_text_title[is.na(parole_text_title)] <- "neutral"
+
+```
+
+```{r attaching-sentiments-title}
+parole_sub2 <- parole_sub %>%
+  select(Title, year, pubtitle) %>%
+  distinct(Title, year, pubtitle) %>%
+  unnest_tokens(output = word, input = Title) %>%
+  anti_join(stop_words) %>%
+  mutate(word = tolower(word)) 
+
+parts_of_speech_ad <- parts_of_speech %>%
+  filter(pos %in% c("Adjective", "Adverb", "Noun", "Verb"))
+
+parole_sub2 <- parole_sub2 %>%
+  left_join(parts_of_speech_ad, by = "word")
+
+parole_sub4 <- parole_sub2 %>%
+  group_by(year, pubtitle, word, pos) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+
+parole_sentiments <- get_sentiments()
+parole_title <- parole_sub4 %>%
+  left_join(parole_sentiments, by = "word")
+# anti_join(parole_sentiments) 
+
+parole_title[is.na(parole_title)] <- "neutral"
+```
+
+```{r attaching-sentiments-abstract}
+parole_sub2 <- parole_sub %>%
+  select(Abstract, year, pubtitle) %>%
+  distinct(Abstract, year, pubtitle) %>%
+  unnest_tokens(output = word, input = Abstract) %>%
+  anti_join(stop_words) %>%
+  mutate(word = tolower(word)) 
+
+parts_of_speech_ad <- parts_of_speech %>%
+  filter(pos %in% c("Adjective", "Adverb", "Noun", "Verb"))
+
+parole_sub2 <- parole_sub2 %>%
+  left_join(parts_of_speech_ad, by = "word")
+
+parole_sub4 <- parole_sub2 %>%
+  group_by(year, pubtitle, word, pos) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sentiments <- get_sentiments()
+parole_abstract <- parole_sub4 %>%
+  left_join(parole_sentiments, by = "word")
+# anti_join(parole_sentiments) 
+
+parole_abstract[is.na(parole_abstract)] <- "neutral"
+```
+
+## Executive Summary
+1.Start with the problem or need the document is solving.
+2.Outline the recommended solution.
+3.Explain the solution’s value.
+4.Wrap up with a conclusion about the importance of the work.
+
+
+## Introduction & Backgrounds
+In 1976, Maine was the first state to abolish parole during the antiwar movement. Several states followed Maine’s lead abolishing parole in an effort to move away from indeterminate sentences and increase predictability in punishment. At this time, the goal of incarceration shifted from rehabilitation to punishment as policymakers argued prisoners were not capable of recovery without recidivism. Although in the 1970s the U.S. incarceration rate was comparable to those in Europe and Canada, by the 2010s the United States housed 25% of the world’s prisons. Since the mid1970s, the incarceration rate in America has increased more than fourfold and the United States leads the world in prison population. More specifically, in Maine, the number of people locked up has increased 163% since 1983 and women in prison has increased by 794%. 
+
+In an effort to shift the focus back from punishment to rehabilitation in the judicial system, extensive literature has been published by researchers discussing cultural indicators for criminal behavior, such as the importance of child abuse, poverty, and early exposure to substance abuse, and the positive impact of individual-centered approaches to crime prevention that can be facilitated by community-based approaches. Thus, initiatives to help prevent criminal behavior and reduce the likelihood of recidivism from a community standpoint are essential to reducing the incarceration rate. 
+
+Today, Maine is one of 16 states that doesn’t have parole. Recently however, a bill to restore parole in Maine was passed in the House and Senate to be signed by the governor. The bill ultimately failed in 2021, but an investigation was authorized to delve into the logistics of reinstating parole, the infrastructure needed to support indeterminate sentencing, and the cost-analysis of the revampment of Maine’s judicial system. 
+
+Our community partner for this project, the Maine Prisoner Advocacy Coalition, is planning to campaign on behalf of the reinstatement of parole and organize policy action to support the new parole initiative. In working with the MPAC, we evaluated local public perception toward parole by utilizing text analysis. By using data from three main newspapers, the Portland Press Herald, the Bangor Daily, and the Sun Journal, we aimed to cover the broad spectrum of news coverage across the entirety of Maine and conducted sentimental analysis using R to track perception around parole. We must preface that we are assuming these news sources are representative of public perception and that not only are the opinions of the local communities informed by these local papers but also representative of their opinions. We understand that not everyone in Maine reads the local paper or has the same opinion, but for the purposes of our research we are making generalizations about the local population. Nevertheless, through this process of opinion mining, we categorized language into positive, negative, or neutral sentiments and generated a series of visualizations to highlight trends. Our goal is that our research identifies trends that will help the MPAC make informed decisions when organizing campaigns so they can maximize saliency to the public. 
+
+
+## Data
+The data set was given to us in the form of a ProQuest document. ProQuest is an academic database which is considered as the broadest single research resource in the world. Using help from a researcher at Bates and an advanced search option, we were able to trim down our newspaper search rapidly using filters and limiting the topics by searching “parole” in abstract or “parole” and “probation” in the title for example. Our filtered searches helped us end with 738 newspaper articles focusing on three main Maine newspapers: The Bangor Daily News, The Sun Journal, Portland Press Herald. The dimensions for our data are specific to the question of parole in Maine in between 2000 and the present where we focused on the sentiment ( negative/ positive/ neutral). 
+
+## Methods
+Once we retrieved the data, we started cleaning it using multiple methods. We needed to use stopwords (which removes small words such as “a”, “the”, “at”), unnesting (Nesting creates a list-column of data frames; unnesting flattens it back out into regular columns, anti-join (anti-joining the stopwords and the data), part-of-speech(). Such tools gave us more room to analyze sentiments around parole and how the newspapers expressed themselves concerning this topic. As a group we decided to focus on data going from the present day all the way back to 2000. While cleaning our data, separating words was an important part of our process when looking at whether a word is a noun, adjective or an adverb.
+Once the data had been fully cleaned, we then started our Text Analysis using R Studio as well as R Markdown and R Shiny. After coding, we were able to create wordclouds looking at word frequencies and how much value a word has depending on its color. Secondly, we made bar plots looking at negative adverbs/ adjectives in Maine news concerning parole which gave us some interesting feedback. Our analysis became more detailed once we met with Amy Douglass (Psychology Professor at Bates College)  as well as Jan Collins who works for the Maine Prison Advocacy Coalition Group. The situation on parole in Maine was eventually more clear to us which helped us narrow down our focus and what visualisations we felt were vital to our research. The next step in our analysis was exploring sentiments through adults versus juveniles in Maine. We have finally created word associations which focuses on relations between words and the amout of times they are linked. 
+
+
+### Part I - Preliminary analysis
+
+#### word-cloud
+```{r word-cloud-negative}
+parole_sub_x <- parole_sub2 %>%
+  group_by(word, pos) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sentiments <- get_sentiments()
+
+parole_abstract_wordcloud <- parole_sub_x %>%
+  left_join(parole_sentiments, by = "word") 
+
+parole_abstract_wordcloud[is.na(parole_abstract_wordcloud)] <- "neutral"
+
+parole_abstract_wordcloud <- parole_abstract_wordcloud %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(sentiment == "negative") 
+  
+set.seed(1234)
+wordcloud(words = parole_abstract_wordcloud$word, freq = parole_abstract_wordcloud$count, min.freq = 2,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+```{r word-cloud-positive}
+parole_sub_x <- parole_sub2 %>%
+  group_by(word, pos) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sentiments <- get_sentiments()
+
+parole_abstract_wordcloud <- parole_sub_x %>%
+  left_join(parole_sentiments, by = "word") 
+
+parole_abstract_wordcloud[is.na(parole_abstract_wordcloud)] <- "neutral"
+
+parole_abstract_wordcloud <- parole_abstract_wordcloud %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(sentiment == "positive") 
+  
+set.seed(1234)
+wordcloud(words = parole_abstract_wordcloud$word, freq = parole_abstract_wordcloud$count, min.freq = 2,
+          max.words=200, random.order=FALSE, rot.per=0.35, 
+          colors=brewer.pal(8, "Dark2"))
+```
+
+### Part II - Sentiment analysis
+
+#### R-Shiny Bar Plot
+https://3fjgps-qifeng-sun.shinyapps.io/Interactive_bar_parole/
+
+#### Stacked Line Plot
+```{r general, fig.align = 'left'}
+variation_data2 <- parole_adj_adv %>%
+  ungroup() %>%
+  group_by(sentiment, year) %>%
+  summarise(count_total = sum(count)) %>%
+  filter(sentiment %in% c("positive", "negative")) %>%
+  arrange(year)
+
+plot2 <- variation_data2 %>% 
+  ggplot( aes(x=year, y=count_total, fill=sentiment, text=sentiment)) +
+    geom_area(alpha = 0.6) +
+    scale_fill_viridis(discrete = TRUE) +
+    theme() +
+    ggtitle("Sentiments Over the Course of 20 years") +
+    theme_ipsum() +
+    #theme_classic() +
+  labs(
+    x = "Year", 
+    y = "Frequency"
+    ) +
+    theme()
+
+
+# Turn it interactive
+plot2 <- ggplotly(plot2, tooltip="text")
+plot2
+
+```
+
+```{r general-negative-1, fig.align = 'left'}
+parole_sub_stacked1 <- parole_text %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(sentiment == "negative") %>%
+  group_by(year, pubtitle, sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sub_stacked1 %>%
+  ggplot(aes(x=year, y=count, fill=pubtitle)) +
+  geom_area(alpha = 0.6) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("frequency of negative adjectives or adverbs in Maine news around parole by press") +
+  theme_ipsum() +
+  theme_minimal()
+```
+
+```{r general-negative-2, fig.align = 'left'}
+parole_sub_stackedx <- parole_text %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  group_by(year, pubtitle, sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sub_wide <- parole_sub_stackedx %>%
+  pivot_wider(names_from = sentiment, values_from = count)
+
+parole_sub_stacked2 <- parole_sub_wide %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) %>%
+  group_by(year, pubtitle) %>%
+  arrange(desc(percentage_negative)) %>%
+  na.omit()
+
+parole_sub_stacked2 %>%
+  ggplot(aes(x=year, y=percentage_negative, fill=pubtitle)) +
+  geom_area(alpha = 0.6) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+  labs(subtitle = "by press") +
+  theme_ipsum() +
+  theme_minimal()
+```
+
+```{r general-positive-1, fig.align = 'left'}
+parole_sub_stacked1 <- parole_text %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(sentiment == "positive") %>%
+  group_by(year, pubtitle, sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sub_stacked1 %>%
+  ggplot(aes(x=year, y=count, fill=pubtitle)) +
+  geom_area(alpha = 0.6) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("frequency of positive adjectives or adverbs in Maine news around parole by press") +
+  theme_ipsum() +
+  theme_minimal()
+```
+
+```{r general-positive-2, fig.align = 'left'}
+parole_sub_stackedx <- parole_text %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  group_by(year, pubtitle, sentiment) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sub_wide <- parole_sub_stackedx %>%
+  pivot_wider(names_from = sentiment, values_from = count)
+
+parole_sub_stacked2 <- parole_sub_wide %>%
+  mutate(percentage_positive = positive/(negative + positive + neutral)) %>%
+  group_by(year, pubtitle) %>%
+  arrange(desc(percentage_positive)) %>%
+  na.omit()
+
+parole_sub_stacked2 %>%
+  ggplot(aes(x=year, y=percentage_positive, fill=pubtitle)) +
+  geom_area(alpha = 0.6) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("ratio of positive adjectives/adverbs occurance in Maine news around parole") +
+  labs(subtitle = "by press") +
+  theme_ipsum() +
+  theme_minimal()
+```
+
+```{r specific-words}
+#parole_adj_adv <- subset(parole_adj_adv, select = -pubtitle)
+#parole_adj_adv <- subset(parole_adj_adv, select = -pos)
+
+#variation_data <- parole_adj_adv %>%
+# ungroup() %>%
+# filter(word %in% c("violent", "dangerous", "recidivism")) %>%
+# group_by(word, year) %>%
+# summarise(count_total = sum(count)) %>%
+# arrange(year)
+
+#p <- variation_data %>% 
+# ggplot(aes(x=year, y=count_total, fill=word, text=word)) +
+#   geom_area(alpha = 0.6) +
+#   scale_fill_viridis(discrete = TRUE) +
+#   ggtitle("Popularity of Certain Words in the past 20 years") +
+#   theme_ipsum() +
+#   theme_minimal()
+
+# Turn it interactive
+#p <- ggplotly(p, tooltip="text")
+#p
+```
+
+### Part III - Psychology Research
+
+```{r create-filters}
+parole_adult <- parole_text_title %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(word == "adult")
+
+parole_juvenile <- parole_text_title %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(word == "juvenile" | word == "teenager")
+
+parole_violent <- parole_text_title %>%
+  filter(pos == "Adjective" | pos == "Adverb") %>%
+  filter(word == "violent" | word == "violence")
+
+parole_sub2 <- parole_sub %>%
+  select(text, Title, year, pubtitle) %>%
+  unnest_tokens(output = word, input = text) %>%
+  anti_join(stop_words) %>%
+  mutate(word = tolower(word)) 
+
+parts_of_speech_ad <- parts_of_speech %>%
+  filter(pos %in% c("Adjective", "Adverb", "Noun", "Verb"))
+
+parole_sub2 <- parole_sub2 %>%
+  left_join(parts_of_speech_ad, by = "word")
+
+parole_sub3 <- parole_sub2 %>%
+  group_by(year, Title, pubtitle, pos) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sub4 <- parole_sub2 %>%
+  group_by(Title, year, pubtitle, word, pos) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit()
+
+parole_sentiments <- get_sentiments()
+parole_adj_adv <- parole_sub4 %>%
+  left_join(parole_sentiments, by = "word")
+# anti_join(parole_sentiments) 
+
+parole_adj_adv[is.na(parole_adj_adv)] <- "neutral"
+
+```
+
+#### violence
+```{r violence-negative, fig.align = 'left'}
+parole_violent_final <- parole_adj_adv %>%
+  mutate(dummy = ifelse(Title %in% parole_violent$Title, "violent", "no-violent")) %>%
+  filter(pos == "Adjective" | pos == "Adverb")
+
+parole_violent_final <- parole_violent_final%>%
+  group_by(sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) 
+
+parole_violent_final %>%
+  ggplot(aes(x=dummy, y=percentage_negative, fill = dummy)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'violent/violence'") +
+  theme_minimal()
+```
+
+```{r violence-positive, fig.align = 'left'}
+parole_violent_final <- parole_adj_adv %>%
+  mutate(dummy = ifelse(Title %in% parole_violent$Title, "violent", "no-violent")) %>%
+  filter(pos == "Adjective" | pos == "Adverb")
+
+parole_violent_final <- parole_violent_final%>%
+  group_by(sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_positive = positive/(negative + positive + neutral)) 
+
+parole_violent_final %>%
+  ggplot(aes(x=dummy, y=percentage_positive, fill = dummy)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("ratio of positive adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'violent/violence'") +
+  theme_minimal()
+```
+
+#### juvenile
+```{r juvenile-negative, fig.align = 'left'}
+parole_juvenile_final <- parole_adj_adv %>%
+  mutate(dummy = ifelse(Title %in% parole_juvenile$Title, "juvenile/teenager", "no-juvenile/teenager")) %>%
+  filter(pos == "Adjective" | pos == "Adverb") 
+
+parole_juvenile_final <- parole_juvenile_final%>%
+  group_by(sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) 
+
+parole_juvenile_final %>%
+  ggplot(aes(x=dummy, y=percentage_negative, fill = dummy)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'juvenile/teenager'") +
+  theme_minimal()
+```
+
+```{r juvenile-positive, fig.align = 'left'}
+parole_juvenile_final <- parole_adj_adv %>%
+  mutate(dummy = ifelse(Title %in% parole_juvenile$Title, "juvenile/teenager", "no-juvenile/teenager")) %>%
+  filter(pos == "Adjective" | pos == "Adverb") 
+
+parole_juvenile_final <- parole_juvenile_final%>%
+  group_by(sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_positive = positive/(negative + positive + neutral)) 
+
+parole_juvenile_final %>%
+  ggplot(aes(x=dummy, y=percentage_positive, fill = dummy)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("ratio of positive adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'juvenile/teenager'") +
+  theme_minimal()
+```
+
+#### adult
+```{r adult-negative, fig.align = 'left'}
+parole_adult_final <- parole_adj_adv %>%
+ mutate(dummy = ifelse(Title %in% parole_adult$Title, "adult", "no-adult")) %>%
+ filter(pos == "Adjective" | pos == "Adverb") 
+
+parole_adult_final <- parole_adult_final%>%
+  group_by(sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_negative = negative/(negative + positive + neutral)) 
+
+parole_adult_final %>%
+  ggplot(aes(x=dummy, y=percentage_negative, fill = dummy)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("ratio of negative adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'adult'") +
+  theme_minimal()
+```
+
+```{r adult-positive, fig.align = 'left'}
+parole_adult_final <- parole_adj_adv %>%
+ mutate(dummy = ifelse(Title %in% parole_adult$Title, "adult", "no-adult")) %>%
+ filter(pos == "Adjective" | pos == "Adverb") 
+
+parole_adult_final <- parole_adult_final%>%
+  group_by(sentiment, dummy) %>%
+  summarise(count = n())%>%
+  arrange(desc(count)) %>%
+  na.omit() %>%
+  pivot_wider(names_from = sentiment, values_from = count) %>%
+  mutate(percentage_positive = positive/(negative + positive + neutral)) 
+
+parole_adult_final %>%
+  ggplot(aes(x=dummy, y=percentage_positive, fill = dummy)) +
+  geom_bar(stat="identity", position=position_dodge()) +
+  scale_fill_viridis(discrete = TRUE) +
+  ggtitle("ratio of positive adjectives/adverbs occurance in Maine news around parole") +
+  labs(x = "whether the news contain 'adult'") +
+  theme_minimal()
+```
+
+
+### Part IV - word association and network of words
+
+#### bigram frequencies barplot
+```{r bigram-frequencies}
+
+```
+
+
+#### word Association
+```{r word-association}
+
+```
+
+
+
+
+## Results and Discussion
+
+
+## Limitations
+
+
+## Next steps & Future Research
+
+
+
+
+
+
+
+

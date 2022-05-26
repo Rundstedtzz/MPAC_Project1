@@ -11,30 +11,30 @@ whether articles that appear violent, juvenile, adult have more negative adjs?
 
 ```{r}
 library(tidyverse)
-parole_adult <- parole_adj_adv %>%
+parole_adult <- parole_text %>%
   filter(pos == "Adjective" | pos == "Adverb") %>%
   filter(word == "adult")
 
-parole_juvenile <- parole_adj_adv %>%
+parole_juvenile <- parole_text %>%
   filter(pos == "Adjective" | pos == "Adverb") %>%
   filter(word == "juvenile" | word == "teenager")
 
-parole_violent <- parole_adj_adv %>%
+parole_violent <- parole_text %>%
   filter(pos == "Adjective" | pos == "Adverb") %>%
   filter(word == "violent" | word == "violence")
 
-parole_try <- parole_adj_adv %>%
+parole_try <- parole_text %>%
   filter(word == "reform")
 ```
 
 ```{r}
-parole_elder <- parole_adj_adv %>%
+parole_elder <- parole_text %>%
   filter(pos == "Adjective" | pos == "Adverb") %>%
   filter(word == "elder")
 ```
 
 ```{r}
-parole_adj_adv %>%
+parole_text %>%
     arrange(desc(count)) %>%
     head(10) %>%
     ggplot(aes(count, word)) +

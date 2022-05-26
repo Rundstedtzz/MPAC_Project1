@@ -11,6 +11,7 @@ library(shiny)
 library(dplyr)
 library(ggplot2)
 library(lubridate)
+library(tidyverse)
 
 # Define server logic required to draw a xxx
 server <- function(input, output, session) {
@@ -42,9 +43,9 @@ server <- function(input, output, session) {
 
 # Define UI for application that draws xxx
 ui <- fluidPage(
-    titlePanel("Interactive Visualization of Parole Sentiment"),
+    titlePanel("Interactive visualization of words in parole-related news articles"),
     sidebarLayout(
-      sidebarPanel(width = 5, 
+      sidebarPanel(width = 4, 
         
     # press select
     checkboxGroupInput("press", label = h3("Newspaper"), 
@@ -80,12 +81,10 @@ ui <- fluidPage(
 
     ),
       
-    mainPanel(width = 7, 
+    mainPanel(width = 8, 
               plotOutput("plot"))
     )
 )
-
-
 
 
 # Run the application 

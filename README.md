@@ -12,3 +12,5 @@ How to get started.
 norms for collaboration and communication
 
 Where to find key resources.
+
+The technical report is [here](report/technical_report.html)
