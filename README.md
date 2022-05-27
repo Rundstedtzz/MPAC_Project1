@@ -26,6 +26,8 @@ Summary
 
 There are several limitations to our study, primarily that we assume sentiments articulated in the newspaper articles are representative of general public opinion in Maine. However, we believe that our results can give context to some of the public’s reactions to issues around parole. This report can be vital to campaigning strategy and is a great foundation for future research.
 
-The technical report is [here](report/technical_report.html)
+---------------------------------------------------------------------------
+
+The technical report can be accessed [here](report/technical_report.html)
 
 The R-shiny app can be accessed [here](https://3fjgps-qifeng-sun.shinyapps.io/Interactive_bar_parole)
